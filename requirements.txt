@@ -12,3 +12,4 @@ pyttsx3
 azure-cognitiveservices-speech
 chromadb
 langchain-community
+python-multipart
