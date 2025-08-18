@@ -15,7 +15,6 @@ pandas
 requests
 mlflow
 SpeechRecognition
-PyAudio
 azure-cognitiveservices-speech
 transformers
 torch
