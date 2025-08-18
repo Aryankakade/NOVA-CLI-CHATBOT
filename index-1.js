@@ -1,17 +1,20 @@
 // BACKEND CONFIGURATION - EXACT MATCH WITH backend.py
-const API_BASE = "https://nova-backend-1.onrender.com";
+const API_BASE = "http://127.0.0.1:8000"; // Change to your backend URL
 
 // Global Variables
 let currentUser = null;
 let currentPage = 1;
 let selectedAgent = null;
 let isRecording = false;
-let mediaRecorder = null;
+let mediaRecorder;
 let audioChunks = [];
 let chatHistory = [];
 let currentSession = null;
 let isProcessing = false;
 let userId = null;
+let voiceModeEnabled = false;
+const VOICE_PROCESS_ENDPOINT = `${API_BASE}/voice/process`;
+
 
 // COMPLETE FORM SUBMISSION PREVENTION
 document.addEventListener('DOMContentLoaded', function () {
@@ -80,6 +83,9 @@ async function sendMessage() {
     if (!message) return;
 
     isProcessing = true;
+
+    // 🔊 User pressed Enter / Send button → click beep
+    soundManager.playBeep("click");
     
     // Clear input immediately
     input.value = '';
@@ -137,6 +143,9 @@ async function sendMessage() {
             fileContextUsed: fileContextUsed,
             sessionId: sessionId
         });
+
+        // 🔊 AI responded → success beep
+        soundManager.playBeep("success");
         
         saveChatToHistory(message, botResponse);
         
@@ -166,6 +175,9 @@ async function sendMessage() {
         console.error('❌ Chat error:', err);
         removeTypingIndicator(typingId);
         addMessageToChat('bot', `❌ Connection Error: ${err.message}. Please ensure the NOVA backend is running on ${API_BASE}`);
+
+        // 🔊 Error beep
+        soundManager.playBeep("error");
     }
     
     isProcessing = false;
@@ -183,6 +195,7 @@ async function processFileUpload() {
     
     if (!file) {
         showNotification('Please select a file first', 'error');
+        soundManager.playBeep("error");
         return;
     }
     
@@ -193,11 +206,11 @@ async function processFileUpload() {
     const typingId = addTypingIndicator();
     
     try {
-        // Use exact backend POST /file/upload endpoint
         const formData = new FormData();
         formData.append('file', file);
         formData.append('user_id', userId);
-        
+        if (prompt) formData.append('prompt', prompt);
+
         const response = await fetch(`${API_BASE}/file/upload`, {
             method: 'POST',
             body: formData
@@ -210,45 +223,38 @@ async function processFileUpload() {
         const data = await response.json();
         removeTypingIndicator(typingId);
 
-        if (data.success && data.file_analysis) {
-            // Process file analysis response
-            const analysis = data.file_analysis;
-            
-            let responseText = `📄 **File Analysis Complete!**\n\n`;
+        if (data.success && data.metadata?.file_analysis) {
+            const analysis = data.metadata.file_analysis;
+
+            let responseText = `📄 **File Uploaded!**\n\n`;
             responseText += `**File:** ${analysis.file_name}\n`;
             responseText += `**Type:** ${analysis.file_type}\n`;
             responseText += `**Size:** ${formatFileSize(analysis.file_size)}\n`;
-            
             if (analysis.lines) responseText += `**Lines:** ${analysis.lines}\n`;
             if (analysis.words) responseText += `**Words:** ${analysis.words}\n`;
             if (analysis.chars) responseText += `**Characters:** ${analysis.chars}\n`;
-            
-            responseText += `\n**Analysis:**\n${analysis.content || analysis.analysis || 'File processed successfully.'}`;
+
+            // ✅ Show AI’s answer (from standardized field)
+            responseText += `\n🤖 **AI Response:**\n${data.response || 'No AI response generated.'}`;
             
             addMessageToChat('bot', responseText);
-            
-            if (prompt) {
-                // Send the prompt as a follow-up question about the file
-                setTimeout(() => {
-                    const input = document.getElementById('chatInput');
-                    if (input) {
-                        input.value = prompt;
-                        sendMessage();
-                    }
-                }, 1000);
-            }
-            
+            soundManager.playBeep("success");
+
         } else {
             throw new Error(data.error || data.message || 'File processing failed');
         }
         
-        saveChatToHistory(`[File: ${file.name}] ${displayMessage}`, data.message || 'File processed successfully');
+        saveChatToHistory(
+            `[File: ${file.name}] ${displayMessage}`,
+            data.response || 'File processed successfully'
+        );
         showNotification('File processed successfully! 📄', 'success');
         
     } catch (error) {
         console.error('❌ File upload error:', error);
         removeTypingIndicator(typingId);
         addMessageToChat('bot', `❌ File processing failed: ${error.message}`);
+        soundManager.playBeep("error");
         showNotification('File processing failed: ' + error.message, 'error');
     }
 }
@@ -260,16 +266,15 @@ async function speakText(text) {
     try {
         showNotification('🔊 Generating speech...', 'info');
         
-        const response = await fetch(`${API_BASE}/voice/speak`, {
+        const formData = new FormData();
+        formData.append('text', text);
+        formData.append('user_id', userId);
+
+        const response = await fetch(VOICE_PROCESS_ENDPOINT, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                text: text
-            })
+            body: formData
         });
-        
+
         if (!response.ok) {
             throw new Error(`TTS error: ${response.status}`);
         }
@@ -281,15 +286,18 @@ async function speakText(text) {
         
         audio.onloadeddata = () => {
             showNotification('🔊 Playing audio...', 'success');
+            soundManager.playBeep("success");   // ✅ double beep when audio is ready
         };
         
         audio.onended = () => {
             URL.revokeObjectURL(audioUrl);
             showNotification('🔊 Audio playback complete', 'success');
+            soundManager.playBeep("success");   // ✅ beep after playback ends
         };
         
         audio.onerror = () => {
             showNotification('❌ Audio playback failed', 'error');
+            soundManager.playBeep("error");     // ❌ error beep
         };
         
         await audio.play();
@@ -298,7 +306,114 @@ async function speakText(text) {
     } catch (error) {
         console.error('TTS error:', error);
         showNotification('TTS error: ' + error.message, 'error');
+        soundManager.playBeep("error");         // ❌ error beep
         return false;
+    }
+}
+
+async function startVoiceRecording() {
+    try {
+        // Request microphone access
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
+        audioChunks = [];
+        
+        // Setup recording handlers
+        mediaRecorder.ondataavailable = (e) => {
+            if (e.data.size > 0) {
+                audioChunks.push(e.data);
+            }
+        };
+        
+        mediaRecorder.onstop = async () => {
+            await processAudioRecording();
+            stream.getTracks().forEach(track => track.stop());
+        };
+        
+        // Start recording
+        mediaRecorder.start(100); // Collect data every 100ms
+        isRecording = true;
+        updateVoiceButtonState();
+        showNotification('Recording... Speak now', 'info');
+        soundManager.playBeep("click");          // 🎙️ click beep when recording starts
+        
+        // Auto-stop after 10 seconds
+        setTimeout(() => {
+            if (isRecording) stopVoiceRecording();
+        }, 10000);
+        
+    } catch (err) {
+        console.error('Microphone error:', err);
+        showNotification('Could not access microphone', 'error');
+        soundManager.playBeep("error");         // ❌ error beep
+    }
+}
+
+function stopVoiceRecording() {
+    if (mediaRecorder && isRecording) {
+        mediaRecorder.stop();
+        isRecording = false;
+        updateVoiceButtonState();
+        soundManager.playBeep("click");         // 🔊 beep on stop
+    }
+}
+
+async function processAudioRecording() {
+    showLoading('Processing your voice...');
+    
+    try {
+        // Combine audio chunks into a single blob
+        const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+        const formData = new FormData();
+        formData.append('audio', audioBlob, 'voice-input.webm');
+        formData.append('user_id', userId);
+        
+        // Send to backend
+        const response = await fetch(`${API_BASE}/voice/process`, {
+            method: 'POST',
+            body: formData
+        });
+        
+        if (!response.ok) {
+            throw new Error(`Server responded with ${response.status}`);
+        }
+        
+        // Play the response
+        const audioData = await response.blob();
+        const audioUrl = URL.createObjectURL(audioData);
+        const audioPlayer = new Audio(audioUrl);
+
+        audioPlayer.onerror = (e) => {
+            console.error('Audio playback error:', e);
+            showNotification('Failed to play audio response', 'error');
+            soundManager.playBeep("error");     // ❌ error beep
+        };
+        
+        audioPlayer.onended = () => {
+            URL.revokeObjectURL(audioUrl);
+            showNotification('Voice response complete', 'success');
+            soundManager.playBeep("success");   // ✅ success beep after voice reply
+        };
+        
+        await audioPlayer.play();
+        soundManager.playBeep("success");       // ✅ beep when AI voice starts playing
+        
+    } catch (error) {
+        console.error('Voice processing failed:', error);
+        showNotification('Voice processing failed', 'error');
+        soundManager.playBeep("error");         // ❌ error beep
+    } finally {
+        hideLoading();
+    }
+}
+
+function updateVoiceButtonState() {
+    const voiceBtn = document.getElementById('voiceBtn');
+    if (voiceBtn) {
+        voiceBtn.innerHTML = isRecording 
+            ? '<i class="fas fa-microphone-slash"></i>' 
+            : '<i class="fas fa-microphone"></i>';
+        voiceBtn.classList.toggle('recording', isRecording);
     }
 }
 
@@ -308,9 +423,10 @@ async function performWebSearch(query) {
     
     addMessageToChat('user', `🔍 Search: ${query}`);
     const typingId = addTypingIndicator();
+    soundManager.playBeep("click");   // ✅ beep when user starts search
     
     try {
-        // Use exact backend POST /web/search endpoint with SearchRequest model
+        // Call backend /web/search
         const response = await fetch(`${API_BASE}/web/search`, {
             method: 'POST',
             headers: {
@@ -330,9 +446,24 @@ async function performWebSearch(query) {
         removeTypingIndicator(typingId);
         
         if (data.success) {
-            const formattedResponse = data.formatted_response || 'Search completed successfully.';
+            let formattedResponse = "🌐 **Search Results:**\n\n";
+            
+            if (data.results && data.results.length > 0) {
+                data.results.forEach((r, i) => {
+                    formattedResponse += `**${i + 1}. ${r.title}**\n${r.snippet || ''}\n🔗 ${r.url}\n\n`;
+                });
+            } else {
+                formattedResponse += "No results found.\n";
+            }
+
+            // ✅ Add AI Smart Summary if available
+            if (data.summary_answer) {
+                formattedResponse = `🤖 **Smart Answer:**\n${data.summary_answer}\n\n---\n` + formattedResponse;
+            }
+            
             addMessageToChat('bot', formattedResponse);
             showNotification('Web search completed! 🔍', 'success');
+            soundManager.playBeep("success");   // ✅ double beep on success
             
             console.log('✅ Web Search Results:', data);
         } else {
@@ -344,132 +475,128 @@ async function performWebSearch(query) {
         console.error('❌ Web search error:', error);
         addMessageToChat('bot', `❌ Web search failed: ${error.message}`);
         showNotification('Web search failed: ' + error.message, 'error');
+        soundManager.playBeep("error");   // ❌ error beep
     }
 }
 
 // EXACT BACKEND INTEGRATION: POST /github/analyze endpoint with GitHubRequest model
+// 🔍 Analyze GitHub Repo
 async function analyzeGitHubRepo() {
     const repoUrlInput = document.getElementById('githubRepoUrl');
     if (!repoUrlInput) return;
-    
+
     const repoUrl = repoUrlInput.value.trim();
     if (!repoUrl) {
         showNotification('Please enter a GitHub repository URL', 'error');
+        soundManager.playBeep("error");
         return;
     }
-    
     if (!isValidGitHubUrl(repoUrl)) {
         showNotification('Please enter a valid GitHub repository URL', 'error');
+        soundManager.playBeep("error");
         return;
     }
-    
+
     showLoading('🔍 Analyzing GitHub repository...');
-    
+    soundManager.playBeep("click");
+
     try {
-        // Use exact backend POST /github/analyze endpoint with GitHubRequest model
+        const formData = new FormData();
+        formData.append('repo_url', repoUrl);
+        formData.append('user_id', userId || 'web-user');
+
         const response = await fetch(`${API_BASE}/github/analyze`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                repo_url: repoUrl
-            })
+            body: formData
         });
-        
-        if (!response.ok) {
-            throw new Error(`GitHub analysis error: ${response.status}`);
-        }
-        
+
+        if (!response.ok) throw new Error(`GitHub analysis error: ${response.status}`);
         const data = await response.json();
+
         hideLoading();
-        
+
         if (data.success) {
-            // Update UI with analysis results
             const repoAnalysisEl = document.getElementById('repoAnalysis');
             const codeQualityEl = document.getElementById('codeQuality');
             const debugSuggestionsEl = document.getElementById('debugSuggestions');
-            
+
+            const repoUrlMeta = data.metadata?.repo_url || repoUrl;
+            const rawInsights = data.metadata?.raw_insights || {};
+
             if (repoAnalysisEl) {
-                let analysisText = `**Repository:** ${data.repo_name}\n`;
-                analysisText += `**URL:** ${data.repo_url}\n`;
-                analysisText += `**Files Processed:** ${data.files_processed || 'Unknown'}\n`;
-                analysisText += `**Languages:** ${(data.languages || []).join(', ') || 'Unknown'}\n\n`;
-                
-                if (data.analysis && data.analysis.detailed_analysis) {
-                    analysisText += `**Detailed Analysis:**\n`;
-                    for (const [question, answer] of Object.entries(data.analysis.detailed_analysis)) {
-                        if (answer && !answer.includes('Analysis failed')) {
-                            analysisText += `\n**${question}**\n${answer}\n`;
-                        }
-                    }
-                }
-                
-                repoAnalysisEl.textContent = analysisText;
+                repoAnalysisEl.textContent =
+`📂 Repository Analysis
+Repository: ${repoUrlMeta}
+
+--- Detailed Analysis ---
+${rawInsights.code_quality || 'No code quality review available'}
+
+${rawInsights.debugging || 'No debugging suggestions available'}
+
+🤖 AI Response:
+${data.response || 'No AI response generated'}
+`;
             }
-            
+
             if (codeQualityEl) {
-                const issues = data.issues_found || (data.analysis && data.analysis.issues) || [];
-                codeQualityEl.textContent = Array.isArray(issues) ? issues.join('\n') : issues.toString() || 'No critical issues detected';
+                codeQualityEl.textContent = rawInsights.code_quality || 'No critical issues detected';
             }
-            
             if (debugSuggestionsEl) {
-                const suggestions = data.suggestions || (data.analysis && data.analysis.suggestions) || [];
-                debugSuggestionsEl.textContent = Array.isArray(suggestions) ? suggestions.join('\n') : suggestions.toString() || 'No specific suggestions available';
+                debugSuggestionsEl.textContent = rawInsights.debugging || 'No specific suggestions available';
             }
-            
+
             showNotification('Repository analyzed successfully! 🎉', 'success');
+            soundManager.playBeep("success");
             console.log('✅ GitHub Analysis Complete:', data);
-            
+
         } else {
             throw new Error(data.error || 'GitHub analysis failed');
         }
-        
+
     } catch (error) {
         hideLoading();
         console.error('❌ GitHub analysis error:', error);
         showNotification('GitHub analysis failed: ' + error.message, 'error');
-        
-        // Clear analysis results on error
+        soundManager.playBeep("error");
+
         const repoAnalysisEl = document.getElementById('repoAnalysis');
-        const codeQualityEl = document.getElementById('codeQuality');  
+        const codeQualityEl = document.getElementById('codeQuality');
         const debugSuggestionsEl = document.getElementById('debugSuggestions');
-        
+
         if (repoAnalysisEl) repoAnalysisEl.textContent = 'Analysis failed: ' + error.message;
         if (codeQualityEl) codeQualityEl.textContent = 'Unable to assess code quality';
         if (debugSuggestionsEl) debugSuggestionsEl.textContent = 'Unable to provide suggestions';
     }
 }
 
-// EXACT BACKEND INTEGRATION: POST /github/question endpoint with GitHubQuestionRequest model
+// 💬 Ask Follow-up Question on Repo
 async function askGitHubQuestion(question) {
     if (!question.trim()) return;
-    
+
+    soundManager.playBeep("click");
+
     try {
+        const formData = new FormData();
+        formData.append('question', question);
+
         const response = await fetch(`${API_BASE}/github/question`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                question: question
-            })
+            body: formData
         });
-        
-        if (!response.ok) {
-            throw new Error(`GitHub question error: ${response.status}`);
-        }
-        
+
+        if (!response.ok) throw new Error(`GitHub question error: ${response.status}`);
         const data = await response.json();
-        
+
         if (data.success) {
-            return data.answer;
+            soundManager.playBeep("success");
+            return data.response;   // ✅ standardized field
         } else {
-            throw new Error('GitHub question processing failed');
+            throw new Error(data.error || 'GitHub question failed');
         }
-        
+
     } catch (error) {
         console.error('❌ GitHub question error:', error);
+        soundManager.playBeep("error");
         return `Error asking GitHub question: ${error.message}`;
     }
 }
@@ -758,6 +885,67 @@ function handleLogout() {
     showNotification('Logged out successfully! See you soon! 👋', 'success');
 }
 
+function startNewChat() {
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+
+    // Reset chat messages
+    chatMessages.innerHTML = `
+        <div class="message bot">
+            <div class="font-medium text-cyan-400 mb-1">NOVA</div>
+            <div>Hello! I'm NOVA, your AI assistant. Let's start a new conversation. 🚀</div>
+        </div>
+    `;
+
+    // Reset input
+    chatInput.value = '';
+
+    // Close floating menu
+    document.getElementById('floatingMenu').classList.remove('active');
+}
+
+class SoundManager {
+    constructor() {
+        this.enabled = true;
+    }
+
+    playBeep(type) {
+        if (!this.enabled) return;
+
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = ctx.createOscillator();
+        const gainNode = ctx.createGain();
+
+        oscillator.connect(gainNode);
+        gainNode.connect(ctx.destination);
+
+        let duration = 0.1;
+        let frequency = 800;
+
+        if (type === "click") {
+            frequency = 800;
+            duration = 0.1;
+        } else if (type === "success") {
+            frequency = 600;
+            duration = 0.2;
+        } else if (type === "error") {
+            frequency = 400;
+            duration = 0.3;
+        } else if (type === "notification") {
+            frequency = 1000;
+            duration = 0.15;
+        }
+
+        oscillator.type = "sine";
+        oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
+        oscillator.start();
+        oscillator.stop(ctx.currentTime + duration);
+    }
+}
+
+// global instance
+const soundManager = new SoundManager();
+
 // ========== PROFILE SETUP ==========
 function handleProfileSubmit(e) {
     if (e) {
@@ -861,7 +1049,16 @@ function initializeChatInterface() {
         const agentInfo = getAgentInfo(selectedAgent || 'general');
         addMessageToChat('bot', `Hello! I'm ${agentInfo.name}. ${agentInfo.description}. How can I assist you today?`);
     }
+    voiceModeEnabled = localStorage.getItem('nova_voice_mode') === 'true';
+    if (voiceModeEnabled) {
+        const voiceToggleBtn = document.getElementById('voiceToggle');
+        if (voiceToggleBtn) {
+            voiceToggleBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+            voiceToggleBtn.classList.add('active');
+        }
+    }
 }
+ 
 
 function getAgentInfo(agentType) {
     const agents = {
@@ -875,6 +1072,29 @@ function getAgentInfo(agentType) {
     };
     return agents[agentType] || agents.general;
 }
+
+function toggleVoiceMode() {
+    voiceModeEnabled = !voiceModeEnabled;
+    const voiceToggleBtn = document.getElementById('voiceToggle');
+    
+    if (voiceToggleBtn) {
+        if (voiceModeEnabled) {
+            voiceToggleBtn.innerHTML = '<i class="fas fa-microphone-slash"></i>';
+            voiceToggleBtn.title = 'Voice Mode: ON (Click to turn off)';
+            voiceToggleBtn.classList.add('active');
+            showNotification('Voice mode enabled - NOVA will speak responses', 'success');
+        } else {
+            voiceToggleBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            voiceToggleBtn.title = 'Voice Mode: OFF (Click to turn on)';
+            voiceToggleBtn.classList.remove('active');
+            showNotification('Voice mode disabled', 'info');
+
+        }
+    }
+    localStorage.setItem('nova_voice_mode', voiceModeEnabled ? 'true' : 'false');
+}
+
+
 
 // ========== EVENT LISTENERS SETUP ==========
 function setupEventListeners() {
@@ -943,6 +1163,18 @@ function setupEventListeners() {
         });
     }
 
+    // Voice Toggle Button
+    const voiceToggleBtn = document.getElementById('voiceToggle');
+    if (voiceToggleBtn) {
+        voiceToggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleVoiceMode();
+            return false;
+        });
+    }
+
+
     // Chat Interface
     setupChatEventListeners();
 
@@ -959,13 +1191,14 @@ function setupEventListeners() {
 
     // Menu Items
     const menuItems = {
-        chatMenuItem: () => navigateToPage(4),
-        dashboardMenuItem: () => navigateToPage(5),
-        settingsMenuItem: () => navigateToPage(6),
-        aboutMenuItem: () => navigateToPage(7),
-        githubMenuItem: () => navigateToPage(8),
-        logoutMenuItem: () => handleLogout()
-    };
+    chatMenuItem: () => navigateToPage(4),
+    newChatMenuItem: () => startNewChat(),   // 👈 added
+    dashboardMenuItem: () => navigateToPage(5),
+    settingsMenuItem: () => navigateToPage(6),
+    aboutMenuItem: () => navigateToPage(7),
+    githubMenuItem: () => navigateToPage(8),
+    logoutMenuItem: () => handleLogout()
+};
     
     Object.entries(menuItems).forEach(([id, handler]) => {
         const element = document.getElementById(id);
@@ -1051,6 +1284,13 @@ function setupEventListeners() {
             return false;
         });
     }
+
+    // 🔊 Attach beep to all floating menu items
+    document.querySelectorAll('.menu-item').forEach(item => {
+        item.addEventListener('click', () => {
+            soundManager.playBeep("click");
+        });
+    });
 }
 
 // Chat Input and Send Button Event Listeners - RELOAD-FREE VERSION
@@ -1078,19 +1318,18 @@ function setupChatEventListeners() {
         sendBtn.addEventListener('click', sendMessage);
     }
     
+
     if (voiceBtn) {
-        voiceBtn.addEventListener('click', function(e) {
+        voiceBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            e.stopPropagation();
-            const lastBotMessage = getLastBotMessage();
-            if (lastBotMessage) {
-                speakText(lastBotMessage);
+            if (isRecording) {
+                stopVoiceRecording();
             } else {
-                showNotification('No message to speak', 'info');
+                await startVoiceRecording();
             }
-            return false;
         });
     }
+
 }
 // Separate functions for chat events to prevent conflicts
 function handleChatKeydown(e) {
@@ -1213,6 +1452,11 @@ function addMessageToChat(sender, message, metadata = {}) {
     
     messagesContainer.appendChild(messageDiv);
     messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    if (sender === 'bot' && voiceModeEnabled) {
+        const cleanText = message.replace(/<[^>]*>/g, '').replace(/\*\*/g, '').trim();
+        speakText(cleanText);
+    }
     
     // Smooth scroll animation
     messageDiv.style.opacity = '0';

@@ -1,10 +1,4 @@
 #!/usr/bin/env python3
-"""
-NOVA ULTRA PROFESSIONAL FASTAPI BACKEND - 1:1 CLI MAPPING
-Direct conversion of NOVA-CLI.py to FastAPI with ZERO unnecessary add-ons
-Core Features Only: Memory, Agents, ML, File, Voice, GitHub, Web Search
-"""
-
 import asyncio
 import os
 import sys
@@ -22,6 +16,10 @@ from collections import defaultdict, deque, Counter
 from pathlib import Path
 import tempfile
 from io import BytesIO
+import aiofiles
+from bs4 import BeautifulSoup
+import numpy as np
+
 
 # FastAPI imports
 from fastapi import FastAPI, HTTPException, UploadFile, File, Form
@@ -29,10 +27,38 @@ from fastapi.responses import JSONResponse, StreamingResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 import uvicorn
+from pydub import AudioSegment
+from io import BytesIO
 
 # Environment loading
 from dotenv import load_dotenv
 load_dotenv()
+
+def sanitize_metadata(meta):
+    """Convert numpy + nested dicts/lists into JSON-safe values for metadata storage."""
+    if isinstance(meta, dict):
+        return {k: sanitize_metadata(v) for k, v in meta.items()}
+    elif isinstance(meta, (list, tuple)):
+        return [sanitize_metadata(v) for v in meta]
+    elif isinstance(meta, np.generic):  # numpy types
+        return float(meta)
+    elif isinstance(meta, (np.ndarray,)):
+        return meta.tolist()
+    elif isinstance(meta, (str, int, float, bool)) or meta is None:
+        return meta
+    else:
+        # Anything else (like nested dicts), stringify safely
+        try:
+            return json.dumps(meta)
+        except:
+            return str(meta)
+
+def webm_to_wav(audio_bytes: bytes) -> bytes:
+    """Convert browser WebM/Opus to WAV in memory."""
+    audio = AudioSegment.from_file(BytesIO(audio_bytes), format="webm")
+    wav_io = BytesIO()
+    audio.export(wav_io, format="wav")
+    return wav_io.getvalue()
 
 # Setup paths (same as CLI)
 project_root = os.path.dirname(os.path.abspath(__file__))
@@ -125,6 +151,7 @@ except ImportError:
 # ML System Import (same as CLI)
 try:
     from ml_integration import EnhancedMLManager
+    ml_manager = EnhancedMLManager()
     ML_SYSTEM_AVAILABLE = True
 except ImportError:
     ML_SYSTEM_AVAILABLE = False
@@ -746,7 +773,7 @@ class FileUploadSystem:
 
 # ========== VOICE SYSTEM (EXACT FROM CLI) ==========
 class FastVoiceSystem:
-    """Voice system - EXACT from CLI"""
+    """Voice system with both STT and TTS capabilities"""
     
     def __init__(self):
         self.azure_enabled = AZURE_VOICE_AVAILABLE
@@ -758,27 +785,24 @@ class FastVoiceSystem:
             self.setup_basic_voice()
 
     def setup_azure_voice(self):
-        """Setup Azure voice - EXACT from CLI"""
+        """Setup Azure voice services"""
         try:
             azure_key = os.getenv('AZURE_SPEECH_KEY')
             azure_region = os.getenv('AZURE_SPEECH_REGION', 'eastus')
             
             if azure_key:
-                self.speech_config = speechsdk.SpeechConfig(subscription=azure_key, region=azure_region)
-                self.speech_config.speech_recognition_language = "en-IN"
-                self.speech_config.speech_synthesis_voice_name = "en-IN-NeerjaNeural"
-                
-                audio_config = speechsdk.audio.AudioConfig(use_default_microphone=True)
-                self.speech_recognizer = speechsdk.SpeechRecognizer(
-                    speech_config=self.speech_config, audio_config=audio_config
+                self.speech_config = speechsdk.SpeechConfig(
+                    subscription=azure_key, 
+                    region=azure_region
                 )
-                self.speech_synthesizer = speechsdk.SpeechSynthesizer(speech_config=self.speech_config)
+                self.speech_config.speech_recognition_language = "en-US"
+                self.speech_config.speech_synthesis_voice_name = "en-US-JennyNeural"
         except Exception as e:
             logger.error(f"Azure Voice setup error: {e}")
             self.azure_enabled = False
 
     def setup_basic_voice(self):
-        """Setup basic voice - EXACT from CLI"""
+        """Setup basic voice recognition"""
         try:
             self.recognizer = sr.Recognizer()
             self.tts_engine = pyttsx3.init()
@@ -787,8 +811,42 @@ class FastVoiceSystem:
             logger.error(f"Basic voice setup error: {e}")
             self.basic_voice_enabled = False
 
+    async def recognize_audio(self, audio_data: bytes) -> str:
+        """Convert audio to text using available speech recognition"""
+        try:
+            # Try Azure Speech-to-Text first
+            if self.azure_enabled:
+                audio_stream = speechsdk.audio.PushAudioInputStream()
+                audio_config = speechsdk.audio.AudioConfig(stream=audio_stream)
+                recognizer = speechsdk.SpeechRecognizer(self.speech_config, audio_config)
+                
+                # Push audio data to stream
+                audio_stream.write(audio_data)
+                audio_stream.close()
+                
+                result = recognizer.recognize_once_async().get()
+                if result.reason == speechsdk.ResultReason.RecognizedSpeech:
+                    return result.text
+                
+            # Fallback to basic recognizer
+            if self.basic_voice_enabled:
+                with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
+                    tmp.write(audio_data)
+                    tmp_path = tmp.name
+                
+                with sr.AudioFile(tmp_path) as source:
+                    audio = self.recognizer.record(source)
+                    text = self.recognizer.recognize_google(audio)
+                
+                os.unlink(tmp_path)
+                return text
+                
+        except Exception as e:
+            logger.error(f"Speech recognition error: {e}")
+            return ""
+
     async def speak(self, text: str) -> bytes:
-        """Text-to-speech - EXACT from CLI"""
+        """Convert text to speech audio"""
         clean_text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)
         clean_text = re.sub(r'[🔧💼📈🏥💙🚀🎯📋💡📚🤖⚠️✅❌🔊📝🎤]', '', clean_text)
         
@@ -797,12 +855,15 @@ class FastVoiceSystem:
         
         if self.azure_enabled:
             try:
-                synthesis_result = self.speech_synthesizer.speak_text_async(clean_text).get()
-                if synthesis_result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
-                    return synthesis_result.audio_data
-            except:
-                pass
-        
+                audio_config=None
+                synthesizer = speechsdk.SpeechSynthesizer(self.speech_config, audio_config)
+                result = synthesizer.speak_text_async(clean_text).get()
+                
+                if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+                    return result.audio_data
+            except Exception as e:
+                logger.error(f"Azure TTS failed: {e}")
+
         if self.basic_voice_enabled:
             try:
                 with tempfile.NamedTemporaryFile(suffix='.wav', delete=False) as temp_file:
@@ -814,43 +875,103 @@ class FastVoiceSystem:
                     audio_data = audio_file.read()
                 os.unlink(temp_path)
                 return audio_data
-            except:
-                pass
+            except Exception as e:
+                logger.error(f"Basic TTS failed: {e}")
         
         return b""
 
+    async def process_audio(self, audio_data: bytes) -> bytes:
+        """Complete voice processing: STT -> AI -> TTS"""
+        try:
+            # Step 1: Speech to Text
+            text = await self.recognize_audio(audio_data)
+            if not text:
+                return await self.speak("Sorry, I couldn't understand that.")
+            
+            # Step 2: Get AI response
+            nova_system = NovaUltraSystem()
+            response = await nova_system.get_response(text, "voice-user")
+            
+            # Step 3: Text to Speech
+            return await self.speak(response["response"])
+            
+        except Exception as e:
+            logger.error(f"Voice processing error: {e}")
+            return await self.speak("Sorry, I encountered an error processing your voice.")
+        
+    async def text_to_speech(self, text: str, voice: str = "en-US-AriaNeural") -> bytes:
+     try:
+        # 1. Ensure voice is set
+         self.speech_config.speech_synthesis_voice_name = voice
+
+        # 2. audio_config=None → return audio as bytes (not speaker)
+         synthesizer = speechsdk.SpeechSynthesizer(
+            speech_config=self.speech_config,
+            audio_config=None
+        )
+
+        # 3. Do synthesis
+         result = synthesizer.speak_text_async(text).get()
+
+         if result.reason == speechsdk.ResultReason.SynthesizingAudioCompleted:
+            return result.audio_data
+         elif result.reason == speechsdk.ResultReason.Canceled:
+            details = result.cancellation_details
+            raise RuntimeError(f"TTS canceled: {details.reason} - {details.error_details}")
+         else:
+            raise RuntimeError(f"TTS failed: {result.reason}")
+
+     except Exception as e:
+        logger.error(f"Azure TTS failed: {e}")
+        raise
+
 # ========== WEB SEARCH (EXACT FROM CLI) ==========
 class FastWebSearch:
-    """Web search - EXACT from CLI"""
-    
     def __init__(self):
         self.search_enabled = True
 
-    async def search_web(self, query: str, max_results: int = 5) -> Dict[str, Any]:
-        """DuckDuckGo search - EXACT from CLI"""
+    async def search_web(self, query: str, max_results: int = 5, summarize: bool = True):
         try:
             url = f"https://duckduckgo.com/html/?q={query}"
-            headers = {'User-Agent': 'Mozilla/5.0 (compatible; NOVA-CLI/1.0)'}
+            headers = {'User-Agent': 'Mozilla/5.0 (compatible; NOVA/1.0)'}
             response = requests.get(url, headers=headers, timeout=8)
             response.raise_for_status()
-            
+
             results = []
             content = response.text
-            
-            # Basic parsing - EXACT from CLI
             titles = re.findall(r'<a[^>]*class="result__a"[^>]*>(.*?)</a>', content)
+            snippets = re.findall(r'<a[^>]*class="result__snippet"[^>]*>(.*?)</a>', content)
+
             for i, title in enumerate(titles[:max_results]):
+                snippet = snippets[i] if i < len(snippets) else ""
                 results.append({
-                    "title": title.strip()[:100],
-                    "snippet": f"Search result for {query}",
+                    "title": title.strip(),
+                    "snippet": snippet.strip(),
                     "url": f"https://duckduckgo.com/?q={query}",
                     "source": "DuckDuckGo"
                 })
-            
-            return {"success": True, "query": query, "results": results, "count": len(results)}
-            
+
+            summary_answer = None
+            if summarize and results:
+                # ✅ feed into QA Engine
+                qa = create_qa_engine(persist_directory="./chroma_db")
+                context_text = "\n\n".join(
+                    f"{r['title']}\n{r['snippet']}\n{r['url']}" for r in results
+                )
+                summary_answer = qa.ask(
+                    f"Based on these search results, answer the following:\n\n{query}\n\nSources:\n{context_text}"
+                )
+
+            return {
+                "success": True,
+                "query": query,
+                "results": results,
+                "count": len(results),
+                "summary_answer": summary_answer
+            }
+
         except Exception as e:
-            return {"error": f"Search failed: {e}"}
+            return {"success": False, "error": f"Search failed: {e}"}
 
 # ========== GITHUB ANALYZER (EXACT FROM CLI) ==========
 class EnhancedGitHubRepoAnalyzer:
@@ -1248,34 +1369,46 @@ Provide professional, actionable, and empathetic responses. Be concise yet compr
             
             # Get user context from memory
             user_context = self.memory.get_relevant_context(user_input, user_id, limit=15)
-            
-            # Create system prompt
-            system_prompt = await self.create_system_prompt(
-                agent_type, language, emotion, user_context, user_session['file_context']
-            )
-            
+
+            memory_note=""
+            if user_context:
+                memory_note= f"""
+                The following is a summary of recent conversations with this user.
+                Use this history to keep continuity, remember facts, and provide consistent answers:
+
+            {user_context}
+            """
+            # Create system prompt with injected memory
+            system_prompt = f""" 
+            You are NOVA, a highly professional and advanced AI assistant. 
+            Your role is to provide accurate, comprehensive, and engaging answers that feel human-like.
+            Always adapt tone to the user’s emotional state and maintain continuity from past conversations.
+            {memory_note}
+            Now respond to the new user input in the most professional, detailed, and empathetic way possible.
+            """
+
             # Get AI response
             ai_response = await self.api_manager.get_ai_response(user_input, system_prompt, agent_type)
-            
-            # Final fallback - EXACT from CLI
+
+            # Final fallback
             if not ai_response:
-                ai_response = f"I'm having technical difficulties, but I understand you're asking about {agent_type}-related topics. Please try rephrasing your question."
-            
+               ai_response = (
+                   f"I'm having technical difficulties, but I understand you're asking about "
+                   f"{agent_type}-related topics. Please try rephrasing your question."
+               )
             response_time = time.time() - start_time
-            
             # Update session
             user_session['conversation_count'] += 1
             user_session['last_agent'] = agent_type
             self.conversation_count += 1
-            
-            # Store in memory - EXACT from CLI
+
+            # Store in memory
             await self.memory.remember_conversation(
                 user_id, user_session['session_id'], user_input, ai_response,
                 agent_type, language, emotion, emotion_confidence,
                 response_time=response_time,
                 file_analyzed=user_session['file_context'] if user_session['file_context'] else None
-            )
-            
+        )
             return {
                 "response": ai_response,
                 "agent_used": agent_type,
@@ -1283,25 +1416,24 @@ Provide professional, actionable, and empathetic responses. Be concise yet compr
                 "emotion": emotion,
                 "emotion_confidence": emotion_confidence,
                 "agent_confidence": agent_confidence,
-                "response_time": response_time,
-                "conversation_count": user_session['conversation_count'],
-                "file_context_used": user_session['file_context'] is not None,
-                "user_id": user_id,
-                "session_id": user_session['session_id']
+                 "response_time": response_time,
+                 "conversation_count": user_session['conversation_count'],
+                  "file_context_used": user_session['file_context'] is not None,
+                  "user_id": user_id,
+                  "session_id": user_session['session_id']
             }
-            
         except Exception as e:
-            logger.error(f"Response error: {e}")
-            return {
-                "response": "I apologize for the technical difficulty. Please try again.",
-                "agent_used": "error",
-                "language": "english",
-                "emotion": "neutral",
-                "response_time": time.time() - start_time,
-                "error": str(e),
-                "user_id": user_id
-            }
-
+             logger.error(f"Response error: {e}")
+             return {
+                 "response": "I apologize for the technical difficulty. Please try again.",
+                 "agent_used": "error",
+                 "language": "english",
+                 "emotion": "neutral",
+                 "response_time": time.time() - start_time,
+                 "error": str(e),
+                 "user_id": user_id
+             }
+           
     async def upload_and_analyze_file_content(self, file_content: bytes, filename: str, 
                                             user_id: str = "web-user") -> Dict[str, Any]:
         """File upload and analysis - EXACT from CLI"""
@@ -1474,97 +1606,356 @@ async def root():
 
 @app.post("/chat", response_model=ChatResponse)
 async def chat_endpoint(request: ChatRequest):
-    """Chat endpoint"""
-    response_data = await nova_system.get_response(request.message, request.user_id)
+    """Chat endpoint with ML-enriched answers"""
+
+    # Step 1: Run ML pipeline
+    ml_results = ml_manager.process_user_query(request.message, context={})
+
+    # Extract insights from ML pipeline
+    routing = ml_results.get("routing_decision", {})
+    query_analysis = ml_results.get("query_analysis", {})
+    context_enhancement = ml_results.get("context_enhancement", {})
+
+    intent = routing.get("selected_agent", "general")
+    confidence = routing.get("confidence_level", 0.0)
+
+    sentiment = query_analysis.get("sentiment", "neutral")
+    keywords = query_analysis.get("intent_keywords", [])
+    entities = query_analysis.get("technical_context", {})
+    multi_intent = query_analysis.get("multi_intent_analysis", [])
+    supporting_keywords = query_analysis.get("supporting_keywords", [])
+
+    rag_context = context_enhancement.get("relevant_context", "")
+    recommendations = ml_results.get("recommendations", [])
+    metrics = ml_results.get("performance_metrics", {})
+
+    # Step 2: Build enhanced AI prompt
+    enhanced_prompt = f"""
+    User asked: {request.message}
+
+    🔎 ML Analysis:
+    - Detected intent: {intent} (confidence: {confidence:.2f})
+    - Sentiment: {sentiment}
+    - Keywords: {keywords}
+    - Entities: {entities}
+    - Supporting Keywords: {supporting_keywords}
+    - Multi-intent Analysis: {multi_intent}
+    - Relevant Context (RAG): {rag_context}
+    - Recommendations: {recommendations}
+    - Performance Metrics: {metrics}
+
+    ➡️ Please generate a **professional, advanced, informative, structured, and engaging response**.  
+    Use quantitative data, examples, and technical context naturally.  
+    Make it read like a polished expert answer — not just plain AI output.
+    """
+
+    # Step 3: Pass to Nova AI system
+    response_data = await nova_system.get_response(enhanced_prompt, request.user_id)
+
+    # Step 4: Log interaction (without metadata)
+    ml_manager.store_interaction_intelligently(
+        request.message,
+        response_data["response"],
+        agent_used=intent
+    )
+
+    # Step 5: Return final AI response only
     return ChatResponse(**response_data)
 
 @app.post("/file/upload")
-async def upload_file_endpoint(file: UploadFile = File(...), user_id: str = "web-user", prompt: str = Form(None)):
-    """File upload endpoint with AI analysis"""
+async def upload_file_endpoint(
+    file: UploadFile = File(...),
+    user_id: str = Form("web-user"),
+    prompt: Optional[str] = Form(None)
+):
+    """File upload endpoint with ML-enhanced AI analysis"""
     try:
+        # 1. Read file
         file_content = await file.read()
-        result = await nova_system.upload_and_analyze_file_content(file_content, file.filename, user_id)
+        result = await nova_system.upload_and_analyze_file_content(
+            file_content, file.filename, user_id
+        )
 
         if not result.get("success"):
             return result
 
-        # File analysis
         file_analysis = result["file_analysis"]
 
-        # 🔑 Build context for AI
-        ai_input = f"""
-You are an AI assistant. A user uploaded a file.
-File: {file_analysis['file_name']}
-Type: {file_analysis['file_type']}
-Size: {file_analysis['file_size']} bytes
-Lines: {file_analysis.get('lines', 'N/A')}
+        # 2. Run ML pipeline
+        user_query = prompt or "Please analyze this file and provide useful insights."
+        ml_results = ml_manager.process_user_query(
+            user_query,
+            context={"file_metadata": file_analysis}
+        )
 
-Here is the content (truncated):
-{file_analysis['content'][:2000]}
+        intent = ml_results["routing_decision"]["selected_agent"]
+        sentiment = ml_results["query_analysis"]["sentiment"]
+        keywords = ml_results["query_analysis"]["intent_keywords"]
+        rag_context = ml_results["context_enhancement"]["relevant_context"]
 
-User question: {prompt or "Please analyze this file and provide useful insights."}
-"""
+        # 3. Build enhanced AI input
+        enhanced_input = f"""
+        A user uploaded a file.
 
-        # 🔑 Call AI manager
-        provider = nova_system.api_manager.get_best_provider()
-        ai_response = None
-        if provider:
-            try:
-                resp = requests.post(
-                    provider["url"],
-                    headers=provider["headers"](),
-                    json={
-                        "model": provider["models"][0],
-                        "messages": [{"role": "user", "content": ai_input}]
-                    },
-                    timeout=60
-                )
-                if resp.ok:
-                    data = resp.json()
-                    ai_response = data["choices"][0]["message"]["content"]
-            except Exception as e:
-                ai_response = f"⚠️ AI analysis failed: {e}"
+        📄 File: {file_analysis['file_name']}
+        Type: {file_analysis['file_type']}
+        Size: {file_analysis['file_size']} bytes
+        Lines: {file_analysis.get('lines', 'N/A')}
 
+        --- File Content (truncated) ---
+        {file_analysis['content'][:2000]}
+
+        --- User Question ---
+        {user_query}
+
+        --- ML Insights ---
+        Detected intent: {intent}
+        Sentiment: {sentiment}
+        Keywords: {keywords}
+        Relevant Context: {rag_context}
+
+        ➡️ Please generate a **professional, advanced, structured, and insightful analysis**.
+        Include technical depth, patterns, and recommendations.
+        """
+
+        # 4. Get final AI response
+        response = await nova_system.get_response(enhanced_input, user_id)
+        ai_response = response["response"]
+
+        # 5. Log + monitor (no metadata)
+        ml_manager.store_interaction_intelligently(
+            user_query,
+            ai_response,
+            agent_used=intent
+        )
+
+        # ✅ Standardized clean response
         return {
             "success": True,
-            "file_analysis": file_analysis,
-            "ai_response": ai_response or "No AI response generated",
-            "message": f"Successfully analyzed {file_analysis['file_name']}"
+            "response": ai_response,
+            "metadata": {
+                "file_name": file_analysis["file_name"],
+                "file_type": file_analysis["file_type"],
+                "file_size": file_analysis["file_size"],
+                "lines": file_analysis.get("lines", "N/A"),
+                "message": f"Successfully analyzed {file_analysis['file_name']}"
+            }
         }
 
     except Exception as e:
-        return {"error": f"File upload failed: {str(e)}"}
+        logger.error(f"File upload error: {e}")
+        return {"success": False, "error": f"File upload failed: {str(e)}"}
+    
+
 
 @app.post("/voice/speak")
-async def voice_speak_endpoint(request: VoiceRequest):
-    """Voice TTS endpoint"""
-    audio_data = await nova_system.voice_system.speak(request.text)
-    if audio_data:
+async def voice_speak_endpoint(audio: UploadFile = File(...)):
+    """Process voice audio and return TTS response"""
+    try:
+        # Save the incoming audio file temporarily
+        temp_path = f"temp_{audio.filename}"
+        async with aiofiles.open(temp_path, 'wb') as out_file:
+            content = await audio.read()
+            await out_file.write(content)
+        
+        # Process the audio file (implement your logic here)
+        audio_data = await nova_system.voice_system.process_audio(temp_path)
+        
+        # Clean up
+        os.remove(temp_path)
+        
         return StreamingResponse(
             BytesIO(audio_data),
             media_type="audio/wav",
-            headers={"Content-Disposition": "attachment; filename=speech.wav"}
+            headers={"Content-Disposition": "attachment; filename=response.wav"}
         )
-    else:
-        raise HTTPException(status_code=500, detail="TTS failed")
+        
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Audio processing error: {str(e)}")
+    
+@app.post("/voice/process")
+async def process_voice_command(
+    audio: UploadFile = File(None),
+    text: str = Form(None),
+    user_id: str = Form("voice-user")
+):
+    """
+    Unified voice processing (same as NOVA-CLI):
+    - If `audio` is uploaded → STT → AI → TTS → return spoken answer
+    - If `text` is provided → TTS only → return spoken answer
+    """
+    try:
+        if audio:
+            # 1. Read raw bytes from browser
+            audio_data = await audio.read()
+
+            # 2. Convert WebM → WAV (browser sends webm/opus, CLI had wav directly)
+            wav_bytes = webm_to_wav(audio_data)
+
+            # 3. STT (same as CLI)
+            user_text = await nova_system.voice_system.process_audio(wav_bytes)
+
+            # 4. AI Response (use same method as CLI)
+            ai_response = await nova_system.process_text(user_text, user_id)
+
+            # 5. TTS (explicitly pass default voice like in CLI)
+            processed_audio = await nova_system.voice_system.text_to_speech(
+                ai_response,
+                voice="en-US-AriaNeural"  # replace with the voice you used in CLI
+            )
+
+        elif text:
+            # Direct TTS from given text
+            processed_audio = await nova_system.voice_system.text_to_speech(
+                text,
+                voice="en-US-AriaNeural"
+            )
+
+        else:
+            return JSONResponse(
+                {"error": "No audio or text provided"},
+                status_code=400
+            )
+
+        return StreamingResponse(
+            BytesIO(processed_audio),
+            media_type="audio/wav",
+            headers={"Content-Disposition": "attachment; filename=response.wav"}
+        )
+
+    except Exception as e:
+        logger.error(f"Voice endpoint error: {e}")
+        raise HTTPException(status_code=500, detail=f"Audio processing error: {str(e)}")
+    
 
 @app.post("/web/search")
 async def web_search_endpoint(request: SearchRequest):
-    """Web search endpoint"""
     result = await nova_system.search_web(request.query, request.user_id)
     return result
 
 @app.post("/github/analyze")
-async def github_analyze_endpoint(request: GitHubRequest):
-    """GitHub analyze endpoint"""
-    result = await nova_system.github_analyzer.analyze_repository(request.repo_url)
-    return result
+async def analyze_github_repo(repo_url: str = Form(...), user_id: str = Form("web-user")):
+    try:
+        persist_directory = "./chroma_db"
 
+        # 1. Ingest repo into Chroma DB
+        await ingest_repo(repo_url, persist_directory=persist_directory)
+
+        # 2. Create QA engine
+        qa = create_qa_engine(persist_directory)
+
+        # 3. Collect raw insights
+        code_quality = qa.ask("Provide a detailed code quality review of this repository.")
+        debugging = qa.ask("Identify potential bugs or issues and suggest fixes.")
+
+        # 4. Run ML pipeline on repo query
+        ml_results = ml_manager.process_user_query(
+            f"Analyze GitHub repo {repo_url}",
+            context={
+                "repo_url": repo_url,
+                "code_quality": code_quality,
+                "debugging": debugging
+            }
+        )
+
+        # Extract ML insights
+        intent = ml_results["routing_decision"]["selected_agent"]
+        sentiment = ml_results["query_analysis"]["sentiment"]
+        keywords = ml_results["query_analysis"]["intent_keywords"]
+        rag_context = ml_results["context_enhancement"]["relevant_context"]
+        recommendations = ml_results.get("recommendations", [])
+
+        # 5. Build enhanced AI prompt
+        enhanced_prompt = f"""
+        User uploaded GitHub repo: {repo_url}
+
+        --- Repository Analysis ---
+        Code Quality: {code_quality}
+        Debugging Suggestions: {debugging}
+
+        --- ML Insights ---
+        Intent → {intent}
+        Sentiment → {sentiment}
+        Keywords → {keywords}
+        Relevant Context → {rag_context}
+        Recommendations → {recommendations}
+
+        ➡️ Please generate a **professional, structured, advanced repository analysis** with:
+        - Key strengths
+        - Critical issues
+        - Suggested improvements
+        - Industry best practices
+        - Quantitative evaluation where possible
+        """
+
+        # 6. Generate pro AI response
+        response_data = await nova_system.get_response(enhanced_prompt, user_id)
+
+        # 7. Log & monitor (simple, no metadata arg)
+        ml_manager.store_interaction_intelligently(
+            f"GitHub Analysis: {repo_url}",
+            response_data["response"],
+            agent_used=intent
+        )
+
+        # ✅ 8. Standardized response
+        return {
+            "success": True,
+            "response": response_data["response"],
+            "metadata": {
+                "repo_url": repo_url,
+                "raw_insights": {
+                    "code_quality": code_quality,
+                    "debugging": debugging
+                }
+            }
+        }
+
+    except Exception as e:
+        logger.error(f"GitHub analysis error: {e}")
+        return {"success": False, "error": str(e)}
+    
 @app.post("/github/question")
-async def github_question_endpoint(request: GitHubQuestionRequest):
-    """GitHub question endpoint"""
-    result = await nova_system.github_analyzer.answer_repo_question(request.question)
-    return {"success": True, "answer": result}
+async def ask_github_question(question: str = Form(...), user_id: str = Form("web-user")):
+    try:
+        persist_directory = "./chroma_db"
+        qa = create_qa_engine(persist_directory)
+
+        # Get base repo answer
+        raw_answer = qa.ask(question)
+
+        # Run through ML pipeline for enrichment
+        ml_results = ml_manager.process_user_query(question, context={"repo_answer": raw_answer})
+        intent = ml_results["routing_decision"]["selected_agent"]
+        rag_context = ml_results["context_enhancement"]["relevant_context"]
+
+        # Build enhanced prompt
+        enhanced_prompt = f"""
+        User asked about repository: {question}
+
+        Base Repo Answer: {raw_answer}
+        Detected intent: {intent}
+        Additional Context: {rag_context}
+
+        ➡️ Refine into a **clear, technical, professional answer** with
+        practical suggestions where possible.
+        """
+
+        # Get final response
+        response_data = await nova_system.get_response(enhanced_prompt, user_id)
+
+        # Log/monitor
+        ml_manager.store_interaction_intelligently(question, response_data["response"], agent_used=intent)
+
+        return {
+    "success": True,
+    "response": response_data["response"],
+    "metadata": {"question": question, "raw_answer": raw_answer}
+}
+
+    except Exception as e:
+        logger.error(f"GitHub question error: {e}")
+        return {"success": False, "error": str(e)}
 
 @app.get("/system/status")
 async def system_status_endpoint():
@@ -1599,4 +1990,4 @@ async def startup_event():
 # ========== MAIN ENTRY POINT ==========
 if __name__ == "__main__":
     logger.info("🚀 Starting NOVA Ultra Professional FastAPI Backend...")
-    uvicorn.run("backend:app", host="0.0.0.0", port=8000, reload=True)
+    uvicorn.run("backend:app", port=8000, reload=True)

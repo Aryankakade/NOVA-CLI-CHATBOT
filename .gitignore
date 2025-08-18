@@ -1,0 +1,68 @@
+# Virtual environments
+venv/
+novaai_clean/
+.env
+*.env
+
+# Python cache / compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.so
+
+# Logs
+*.log
+logs/
+nohup.out
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+
+# Dependencies cache
+*.egg-info/
+.eggs/
+dist/
+build/
+
+# Jupyter / experiments
+.ipynb_checkpoints/
+*.ipynb
+
+# ML / data artifacts
+*.db
+*.sqlite
+*.sqlite3
+*.h5
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.ckpt
+
+# MLflow & tracking
+mlruns/
+artifacts/
+
+# Node / frontend
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+pnpm-lock.yaml
+
+# Audio / media
+*.wav
+*.mp3
+*.mp4
+
+# Secrets
+*.key
+*.pem
