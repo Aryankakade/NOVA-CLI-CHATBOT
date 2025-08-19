@@ -1,21 +1,5 @@
 #!/usr/bin/env python3
 
-"""
-NOVA ULTRA PROFESSIONAL CLI - WORLD'S ABSOLUTE BEST AI CLI
-Complete Version with RESTORED Features + Enhanced Gaming UI
-
-Features:
-- Multi-agent AI system (6 agents)
-- WORLD'S BEST Gaming Cyberpunk UI (TEXTUAL COMPATIBLE)
-- Multi-provider API system (6 providers)
-- Complete File Upload & Analysis System (VISIBLE)
-- Command Palette RESTORED
-- Sound System RESTORED (inbuilt beeps)
-- Working hover animations
-- Original beautiful color scheme
-- Professional error handling
-"""
-
 import asyncio
 import os
 import sys
