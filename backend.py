@@ -1574,7 +1574,7 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["https://nova-frontend-rouge.vercel.app"],  # ✅ no trailing slash
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
