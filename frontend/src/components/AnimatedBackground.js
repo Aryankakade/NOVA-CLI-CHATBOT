@@ -1,1 +1,0 @@
-// AnimatedBackground.js content here
