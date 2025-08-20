@@ -1354,7 +1354,7 @@ Provide professional, actionable, and empathetic responses. Be concise yet compr
         
         return f"{base_prompt}\n{agent_prompt}{language_note}{emotion_note}{context_note}{file_context_note}"
 
-    async def get_response(self, user_input: str, user_id: str = "web-user",agent_type: str = "general") -> Dict[str, Any]:
+    async def get_response(self, user_input: str, user_id: str = "web-user") -> Dict[str, Any]:
         """Get AI response - EXACT from CLI"""
         start_time = time.time()
         
@@ -1537,7 +1537,6 @@ Content preview: {file_analysis['content'][:500]}...
 class ChatRequest(BaseModel):
     message: str = Field(..., description="User message")
     user_id: str = Field("web-user", description="User ID")
-    agent_type: str 
 
 class ChatResponse(BaseModel):
     response: str
@@ -1572,16 +1571,10 @@ app = FastAPI(
     version="3.0.0"
 )
 
-origins = [
-    "https://nova-chatbot-kappa.vercel.app", 
-    "http://localhost:3000",     
-    "https://nova-frontend-rouge.vercel.app"             
-]
-
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,
+    allow_origins=["https://nova-frontend-rouge.vercel.app"],  # ✅ no trailing slash
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -1618,8 +1611,6 @@ async def chat_endpoint(request: ChatRequest):
     # Step 1: Run ML pipeline
     ml_results = ml_manager.process_user_query(request.message, context={})
 
-    selected_agent = request.agent_type
-
     # Extract insights from ML pipeline
     routing = ml_results.get("routing_decision", {})
     query_analysis = ml_results.get("query_analysis", {})
@@ -1640,37 +1631,32 @@ async def chat_endpoint(request: ChatRequest):
 
     # Step 2: Build enhanced AI prompt
     enhanced_prompt = f"""
-You are NOVA Ultra Professional AI with advanced ML analysis capabilities.
+    User asked: {request.message}
 
-User Query: {request.message}
+    🔎 ML Analysis:
+    - Detected intent: {intent} (confidence: {confidence:.2f})
+    - Sentiment: {sentiment}
+    - Keywords: {keywords}
+    - Entities: {entities}
+    - Supporting Keywords: {supporting_keywords}
+    - Multi-intent Analysis: {multi_intent}
+    - Relevant Context (RAG): {rag_context}
+    - Recommendations: {recommendations}
+    - Performance Metrics: {metrics}
 
-🧠 ML Intelligence Report:
-- Intent Detection: {intent} (confidence: {confidence:.2f})
-- Emotional State: {sentiment}
-- Technical Keywords: {keywords}
-- Context Entities: {entities}
-- Multi-Intent Analysis: {multi_intent}
-- RAG Context: {rag_context}
-- Performance Metrics: {metrics}
-
-Instructions:
-1. Use the ML insights to provide a highly personalized response
-2. Address the detected emotional state appropriately
-3. Incorporate technical keywords naturally
-4. Reference relevant context from RAG system
-5. Structure response professionally with examples/data when possible
-
-Generate a response that feels expert-level and human-like, not robotic.
-"""
+    ➡️ Please generate a **professional, advanced, informative, structured, and engaging response**.  
+    Use quantitative data, examples, and technical context naturally.  
+    Make it read like a polished expert answer — not just plain AI output.
+    """
 
     # Step 3: Pass to Nova AI system
-    response_data = await nova_system.get_response(enhanced_prompt, request.user_id, agent_type=selected_agent)
+    response_data = await nova_system.get_response(enhanced_prompt, request.user_id)
 
     # Step 4: Log interaction (without metadata)
     ml_manager.store_interaction_intelligently(
         request.message,
         response_data["response"],
-        agent_used=selected_agent
+        agent_used=intent
     )
 
     # Step 5: Return final AI response only
