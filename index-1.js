@@ -28,7 +28,9 @@ document.addEventListener('DOMContentLoaded', function () {
     chatInput.addEventListener('keydown', function (e) {
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault(); // stop page reload
-            document.getElementById('sendBtn').click(); // trigger send
+            e.stopPropagation();
+            sendMessage();
+            return false;
         }
     });
 
@@ -109,7 +111,8 @@ async function sendMessage() {
             },
             body: JSON.stringify({
                 message: message,
-                user_id: userId
+                user_id: userId,
+                agent_type: selectedAgent
             })
         });
 
