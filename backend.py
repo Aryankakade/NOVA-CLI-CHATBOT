@@ -1571,10 +1571,15 @@ app = FastAPI(
     version="3.0.0"
 )
 
-# CORS middleware
+origins = [
+    "https://nova-chatbot-kappa.vercel.app", 
+    "http://localhost:3000", 
+    "https://novachatbot-lime.vercel.app"            
+]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["https://nova-frontend-rouge.vercel.app"],  # ✅ no trailing slash
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
