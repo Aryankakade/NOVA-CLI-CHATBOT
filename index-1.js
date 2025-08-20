@@ -1,5 +1,5 @@
 // BACKEND CONFIGURATION - EXACT MATCH WITH backend.py
-const API_BASE = "https://nova-chatbot-hizy.onrender.com"; // Change to your backend URL
+const API_BASE = "http://127.0.0.1:8000"; // Change to your backend URL
 
 // Global Variables
 let currentUser = null;
