@@ -1,0 +1,114 @@
+{
+  "imports": {
+    "basic_imports": true,
+    "smart_routing_imports": true,
+    "repo_context_imports": true
+  },
+  "creation": true,
+  "basic_qa": true,
+  "qa_results": [
+    {
+      "question": "What is Python programming language?",
+      "success": true,
+      "response_time": 0.654475212097168,
+      "response_length": 3048,
+      "model_used": "Cerebras_Lightning",
+      "smart_routing": true
+    },
+    {
+      "question": "Explain machine learning in simple terms",
+      "success": true,
+      "response_time": 0.7423064708709717,
+      "response_length": 4169,
+      "model_used": "Cerebras_Lightning",
+      "smart_routing": true
+    },
+    {
+      "question": "How do you create a REST API?",
+      "success": true,
+      "response_time": 0.8028378486633301,
+      "response_length": 4630,
+      "model_used": "Cerebras_Lightning",
+      "smart_routing": true
+    },
+    {
+      "question": "What are the benefits of using databases?",
+      "success": true,
+      "response_time": 0.7252726554870605,
+      "response_length": 4808,
+      "model_used": "Cerebras_Lightning",
+      "smart_routing": true
+    },
+    {
+      "question": "Write a simple Python function to calculate factorial",
+      "success": true,
+      "response_time": 0.68977952003479,
+      "response_length": 2632,
+      "model_used": "Cerebras_Lightning",
+      "smart_routing": true
+    }
+  ],
+  "smart_routing": true,
+  "routing_results": [
+    {
+      "expected_type": "coding",
+      "question": "Write a Python function to read CSV files and handle errors",
+      "smart_routing_used": true,
+      "routing_confidence": 0.95,
+      "selected_model": "DeepSeek_R1_Coder"
+    },
+    {
+      "expected_type": "reasoning",
+      "question": "Analyze the pros and cons of using microservices architecture",
+      "smart_routing_used": true,
+      "routing_confidence": 0.95,
+      "selected_model": "Cerebras_Reasoning_Beast"
+    },
+    {
+      "expected_type": "speed",
+      "question": "What is API?",
+      "smart_routing_used": true,
+      "routing_confidence": 0.95,
+      "selected_model": "Cerebras_Lightning"
+    },
+    {
+      "expected_type": "general",
+      "question": "Tell me about artificial intelligence and its applications",
+      "smart_routing_used": true,
+      "routing_confidence": 0.95,
+      "selected_model": "Cerebras_Lightning"
+    }
+  ],
+  "repository_context": true,
+  "repo_context_results": [
+    {
+      "question": "rewrite main.py file",
+      "expected": "file_rewrite",
+      "detected": "file_rewrite",
+      "confidence": 0.9,
+      "correct": true
+    },
+    {
+      "question": "what issues are in feature.py",
+      "expected": "file_analysis",
+      "detected": "general_question",
+      "confidence": 1.0,
+      "correct": false
+    },
+    {
+      "question": "analyze my repository for bugs",
+      "expected": "repo_analysis",
+      "detected": "repo_analysis",
+      "confidence": 0.9,
+      "correct": true
+    },
+    {
+      "question": "explain machine learning",
+      "expected": "general_question",
+      "detected": "general_question",
+      "confidence": 1.0,
+      "correct": true
+    }
+  ],
+  "performance_metrics": true
+}

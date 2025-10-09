@@ -1,0 +1,58 @@
+[33mfb448b6[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m last and final
+[33md0060fb[m last and final fix
+[33m25a24f3[m  preparing
+[33m57ef13b[m  committing issues
+[33mda89c92[m  initializing issues
+[33mb3177d5[m  final touch
+[33m5d489df[m  improving codebase
+[33mf448ab7[m  feature.py updating
+[33m54f6ca5[m  updating github analyzer
+[33meedfcd6[m  pushing modifications
+[33maffbb6e[m pushing files to github
+[33mc73fea7[m github analyzer feature
+[33m388880e[m  final CLI commmit
+[33m9a60f91[m publishing CLI
+[33m2e40608[m CLI mistakes resolves
+[33m27fe274[m  CLI changes
+[33m93fa2fb[m commit latest changes
+[33mb85a425[m committed latest
+[33m6cbfd90[m initialized commit
+[33m9270fd1[m commit latest changes
+[33m3d77fd7[m initialized
+[33mfee9e1b[m commit latest
+[33m304a3bc[m latest initialized
+[33m3aff467[m final update
+[33m5ed2c91[m updated code
+[33mc9ab62a[m new claude's backend
+[33m6340340[m claude's backend
+[33m0478a2a[m latest commit
+[33m709e923[m knoweledge_enhancement
+[33m09d67d9[m reasoning added
+[33m7ccb975[m  initial
+[33m22f4340[m newly added
+[33m6fc56cf[m initialized
+[33mcc4369d[m newly added
+[33m7bca569[m updated code
+[33mb9300fa[m updated backend
+[33m8ba421a[m latest update
+[33m45f2eeb[m updated backend
+[33mfc36d07[m initialized
+[33m4ad7742[m latest initialized
+[33mc81c83f[m final initial
+[33m395d0f2[m final initialized
+[33m09463b9[m initialize
+[33m6214756[m simplified requirements.txt for Render
+[33mb355827[m Removed frontend files and simplified requirements.txt for Render
+[33mb440a33[m fix: update CORS config for frontend deployment
+[33mcbc73a2[m Updated frontend JS, cleaned requirements, removed unused files
+[33m96bb583[m Removed Windows-only dependencies for Docker build
+[33m7565da7[m Updated requirements.txt with pip freeze output
+[33m2c8304d[m Removed PyAudio (not supported on Azure App Service)
+[33meb530a6[m Add or update the Azure App Service build and deployment workflow config
+[33m78a1934[m Merge pull request #1 from Aryankakade/full-project
+[33m5e29dc3[m Merge branch 'main' into full-project
+[33mc6a5d07[m[33m ([m[1;31morigin/full-project[m[33m)[m Initial commit for NOVA CLI chatbot
+[33m5bbfc94[m Updated API base URL in index-1.js
+[33m9a893d0[m Fix: restored properd requirements.txt
+[33m54eb4d6[m Fix: restored proper requirements.txt
+[33m6f5f40d[m Add files via upload

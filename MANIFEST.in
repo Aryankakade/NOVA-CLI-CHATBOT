@@ -1,0 +1,16 @@
+include README.md
+include LICENSE
+include requirements.txt
+include .env.template
+
+recursive-include nova_cli *.py
+recursive-include nova_cli/src *
+recursive-include nova_cli/ML *
+recursive-include nova_cli/agents *
+recursive-include nova_cli/templates *
+recursive-include nova_cli/data *
+
+global-exclude __pycache__
+global-exclude *.py[co]
+global-exclude .git*
+global-exclude .DS_Store

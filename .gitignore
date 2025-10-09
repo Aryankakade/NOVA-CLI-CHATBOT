@@ -1,0 +1,145 @@
+# ============================================
+# NOVA CLI - Professional .gitignore v1.0
+# ============================================
+
+# Virtual environments
+venv/
+novaai_clean/
+nova-deploy/
+env/
+ENV/
+.env
+*.env
+
+# Python cache / compiled files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pdb
+*.so
+.Python
+
+# Logs
+*.log
+logs/
+nohup.out
+ingest.log
+
+# OS specific
+.DS_Store
+Thumbs.db
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+
+# IDE specific
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.metadata
+.classpath
+
+# Dependencies cache
+*.egg-info/
+.eggs/
+dist/
+build/
+.tox/
+.coverage
+.pytest_cache/
+
+# PyInstaller specific (NOVA CLI)
+*.spec
+*.manifest
+*.exe.log
+NOVA_CLI.exe
+NOVA.exe
+*.exe
+
+# Jupyter / experiments
+.ipynb_checkpoints/
+*.ipynb
+
+# ML / data artifacts (NOVA specific)
+*.db
+*.sqlite
+*.sqlite3
+*.h5
+*.pkl
+*.joblib
+*.pt
+*.pth
+*.ckpt
+nova_ultra_professional_memory.db
+mlflow.db
+
+# MLflow & tracking (NOVA specific)
+mlruns/
+mlflow_experiments/
+artifacts/
+models/
+vector_db/
+data/
+
+# Node / frontend
+node_modules/
+npm-debug.log
+yarn-error.log
+package-lock.json
+pnpm-lock.yaml
+
+# Audio / media
+*.wav
+*.mp3
+*.mp4
+*.avi
+*.mov
+
+# Secrets & API Keys
+*.key
+*.pem
+api_keys.txt
+secrets.json
+.secrets/
+
+# NOVA CLI Specific Runtime Files
+nova-core/
+plugins/
+temp/
+cache/
+downloads/
+uploads/
+
+# Testing
+.pytest_cache/
+test_results/
+coverage.xml
+*.cover
+htmlcov/
+
+# Documentation build
+docs/_build/
+site/
+
+# Backup files
+*.bak
+*.backup
+*.orig
+*.rej
+
+# Temporary files
+*.tmp
+*.temp
+~$*
+
+# Large files (>100MB)
+*.zip
+*.tar.gz
+*.rar
+*.7z

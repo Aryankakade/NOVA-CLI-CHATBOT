@@ -1,0 +1,21 @@
+{
+  "file_mappings": {
+    "api.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\api.py",
+    "app.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\app.py",
+    "config.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\config.py",
+    "database.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\database.py",
+    "debug_flask.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\debug_flask.py",
+    "models.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\models.py",
+    "readme.md": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\README.md",
+    "requirements.txt": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\requirements.txt",
+    "startup.sh": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\startup.sh",
+    "test_streamlit_api.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\test_streamlit_api.py",
+    "main_banking.yml": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\.github\\workflows\\main_banking.yml",
+    "dashboard.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\pages\\dashboard.py",
+    "home.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\pages\\home.py",
+    "script.js": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\static\\script.js",
+    "styles.css": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_wk0zo15y\\static\\styles.css"
+  },
+  "repo_metadata": {},
+  "timestamp": "2025-09-17T15:04:48.266402"
+}

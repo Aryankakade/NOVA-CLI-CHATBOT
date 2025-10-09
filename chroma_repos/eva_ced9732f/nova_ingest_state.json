@@ -1,0 +1,22 @@
+{
+  "file_mappings": {
+    "cli.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\cli.py",
+    "config.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\config.py",
+    "desktop.ini": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\desktop.ini",
+    "ingest.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\ingest.py",
+    "qa_engine.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\qa_engine.py",
+    "requirements.txt": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\requirements.txt",
+    "test_tts.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\test_tts.py",
+    "voice_interface.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\voice_interface.py",
+    "aryan kakade(analyst_resume).pdf": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\docs\\Aryan Kakade(Analyst_Resume).pdf",
+    "code_reviewer.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\tools\\code_reviewer.py",
+    "emotion_detector.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\tools\\emotion_detector.py",
+    "pdf_analyzer.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\tools\\pdf_analyzer.py",
+    "web_search.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\tools\\web_search.py",
+    "__init__.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\utils\\__init__.py",
+    "display.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\utils\\display.py",
+    "self_heal.py": "C:\\Users\\91902\\AppData\\Local\\Temp\\nova_repo_v8o31v2n\\utils\\self_heal.py"
+  },
+  "repo_metadata": {},
+  "timestamp": "2025-09-20T15:26:57.543592"
+}

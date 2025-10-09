@@ -1,0 +1,17 @@
+{
+  "repo_url": "https://github.com/Aryankakade/nova-frontend.git",
+  "repo_info": {
+    "owner": "Aryankakade",
+    "repo_name": "nova-frontend",
+    "full_name": "Aryankakade/nova-frontend",
+    "url": "https://github.com/Aryankakade/nova-frontend.git"
+  },
+  "file_mapping": {
+    "index-1.js": "index-1.js",
+    "index.html": "index.html"
+  },
+  "total_documents": 2,
+  "total_chunks": 43,
+  "created_at": 1757938271.5986528,
+  "chroma_db_path": "./chroma_db"
+}

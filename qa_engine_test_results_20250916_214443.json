@@ -1,0 +1,70 @@
+{
+  "imports": {
+    "basic_imports": true,
+    "smart_routing_imports": true,
+    "repo_context_imports": true
+  },
+  "creation": true,
+  "basic_qa": false,
+  "qa_results": [
+    {
+      "question": "What is Python programming language?",
+      "success": false,
+      "error": "Invalid response format"
+    },
+    {
+      "question": "Explain machine learning in simple terms",
+      "success": false,
+      "error": "Invalid response format"
+    },
+    {
+      "question": "How do you create a REST API?",
+      "success": false,
+      "error": "Invalid response format"
+    },
+    {
+      "question": "What are the benefits of using databases?",
+      "success": false,
+      "error": "Invalid response format"
+    },
+    {
+      "question": "Write a simple Python function to calculate factorial",
+      "success": false,
+      "error": "Invalid response format"
+    }
+  ],
+  "smart_routing": false,
+  "routing_results": [],
+  "repository_context": true,
+  "repo_context_results": [
+    {
+      "question": "rewrite main.py file",
+      "expected": "file_rewrite",
+      "detected": "file_rewrite",
+      "confidence": 0.9,
+      "correct": true
+    },
+    {
+      "question": "what issues are in feature.py",
+      "expected": "file_analysis",
+      "detected": "general_question",
+      "confidence": 1.0,
+      "correct": false
+    },
+    {
+      "question": "analyze my repository for bugs",
+      "expected": "repo_analysis",
+      "detected": "repo_analysis",
+      "confidence": 0.9,
+      "correct": true
+    },
+    {
+      "question": "explain machine learning",
+      "expected": "general_question",
+      "detected": "general_question",
+      "confidence": 1.0,
+      "correct": true
+    }
+  ],
+  "performance_metrics": true
+}

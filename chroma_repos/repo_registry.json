@@ -1,0 +1,114 @@
+{
+  "repositories": {
+    "https://github.com/Aryankakade/sentiment_analysis": {
+      "db_path": "./chroma_repos\\sentiment_analysis_5b4df765",
+      "processed_at": "2025-09-16T07:07:15.414434",
+      "metadata": {
+        "full_name": "Aryankakade/sentiment_analysis",
+        "description": "sentiment analysis using python ",
+        "language": "Jupyter Notebook",
+        "stars": 0,
+        "forks": 0,
+        "size": 1513,
+        "default_branch": "main",
+        "topics": [],
+        "license": null,
+        "files_processed": 1
+      },
+      "repo_name": "sentiment_analysis",
+      "files_count": 1
+    },
+    "https://github.com/Aryankakade/nova-frontend": {
+      "db_path": "./chroma_repos\\nova-frontend_63870d50",
+      "processed_at": "2025-09-16T08:02:30.870174",
+      "metadata": {
+        "files_processed": 128
+      },
+      "repo_name": "nova-frontend",
+      "files_count": 128
+    },
+    "https://github.com/Aryankakade/fraud": {
+      "db_path": "./chroma_repos\\fraud_b7ee96b1",
+      "processed_at": "2025-09-16T10:09:40.728534",
+      "metadata": {
+        "full_name": "Aryankakade/fraud",
+        "description": null,
+        "language": "Python",
+        "stars": 0,
+        "forks": 0,
+        "size": 177,
+        "default_branch": "main",
+        "topics": [],
+        "license": null,
+        "files_processed": 53
+      },
+      "repo_name": "fraud",
+      "files_count": 53
+    },
+    "https://github.com/Aryankakade/stock_market_dash_app": {
+      "db_path": "./chroma_repos\\stock_market_dash_app_727f8738",
+      "processed_at": "2025-09-16T22:02:46.722692",
+      "metadata": {
+        "full_name": "Aryankakade/stock_market_dash_app",
+        "description": null,
+        "language": "Python",
+        "stars": 0,
+        "forks": 0,
+        "size": 13,
+        "default_branch": "main",
+        "topics": [],
+        "license": null,
+        "files_processed": 34
+      },
+      "repo_name": "stock_market_dash_app",
+      "files_count": 34
+    },
+    "https://github.com/Aryankakade/streamlit-banking-app": {
+      "db_path": "./chroma_repos\\streamlit-banking-app_e6f64a9e",
+      "processed_at": "2025-09-16T23:47:38.112579",
+      "metadata": {
+        "full_name": "Aryankakade/streamlit-banking-app",
+        "description": null,
+        "language": "Python",
+        "stars": 0,
+        "forks": 0,
+        "size": 127,
+        "default_branch": "main",
+        "topics": [],
+        "license": null,
+        "files_processed": 258
+      },
+      "repo_name": "streamlit-banking-app",
+      "files_count": 258
+    },
+    "https://github.com/Aryankakade/eva": {
+      "db_path": "./chroma_repos\\eva_ced9732f",
+      "processed_at": "2025-09-17T15:31:10.538617",
+      "metadata": {
+        "full_name": "Aryankakade/eva",
+        "description": null,
+        "language": "Python",
+        "stars": 0,
+        "forks": 0,
+        "size": 975,
+        "default_branch": "master",
+        "topics": [],
+        "license": null,
+        "files_processed": 156
+      },
+      "repo_name": "eva",
+      "files_count": 156
+    },
+    "https://github.com/Aryankakade/aii": {
+      "db_path": "./chroma_repos\\aii_611b9c1e",
+      "processed_at": "2025-09-18T13:52:32.463213",
+      "metadata": {
+        "files_processed": 1649
+      },
+      "repo_name": "aii",
+      "files_count": 1649
+    }
+  },
+  "last_active": "https://github.com/Aryankakade/aii",
+  "total_repos": 7
+}

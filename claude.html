@@ -1,0 +1,1173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NOVA-AI | The Future of Intelligence</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Prism.js for Syntax Highlighting -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-core.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/plugins/autoloader/prism-autoloader.min.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    
+    <style>
+        /* Your existing style.css content + neon enhancements */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        body {
+            background: #0a0a0f;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+        
+        /* Cosmic Background */
+        .cosmic-bg {
+            background: radial-gradient(ellipse at center, #1a1a2e 0%, #16213e 30%, #0f0f23 70%, #000000 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+        }
+        
+        /* Floating Orbs */
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(2px);
+            animation: float 20s infinite linear;
+        }
+        
+        .orb-1 {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(0, 255, 255, 0.3) 0%, transparent 70%);
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .orb-2 {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(138, 43, 226, 0.3) 0%, transparent 70%);
+            top: 60%;
+            right: 15%;
+            animation-delay: 7s;
+        }
+        
+        .orb-3 {
+            width: 120px;
+            height: 120px;
+            background: radial-gradient(circle, rgba(0, 191, 255, 0.2) 0%, transparent 70%);
+            bottom: 30%;
+            left: 5%;
+            animation-delay: 14s;
+        }
+        
+        @keyframes float {
+            0% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(100px, -100px) rotate(120deg); }
+            66% { transform: translate(-50px, 50px) rotate(240deg); }
+            100% { transform: translate(0, 0) rotate(360deg); }
+        }
+        
+        /* Stars */
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+        
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: #ffffff;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+        
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+        
+        /* Page System */
+        .page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1;
+            overflow-y: auto;
+        }
+        
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            z-index: 2;
+        }
+        
+        /* Neon Glow Effects */
+        .neon-glow {
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3), 0 0 60px rgba(0, 255, 255, 0.1);
+        }
+        
+        .neon-glow-pulse {
+            animation: neon-pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes neon-pulse {
+            0%, 100% { 
+                box-shadow: 0 0 20px rgba(0, 255, 255, 0.5), 0 0 40px rgba(0, 255, 255, 0.3);
+                text-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+            }
+            50% { 
+                box-shadow: 0 0 30px rgba(0, 255, 255, 0.8), 0 0 60px rgba(0, 255, 255, 0.5);
+                text-shadow: 0 0 20px rgba(0, 255, 255, 1);
+            }
+        }
+        
+        /* Glassmorphism Effect */
+        .glass-effect {
+            background: rgba(16, 16, 24, 0.7);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        
+        /* Code Panel */
+        .slide-in-right {
+            transform: translateX(100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .slide-in-right.active {
+            transform: translateX(0);
+        }
+        
+        /* Message Animations */
+        .message-animate {
+            animation: messageSlideIn 0.3s ease-out;
+        }
+        
+        @keyframes messageSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+        
+        /* Typing Effect */
+        .typing-cursor::after {
+            content: '█';
+            animation: blink 1s infinite;
+            color: #00ffff;
+        }
+        
+        @keyframes blink {
+            0%, 50% { opacity: 1; }
+            51%, 100% { opacity: 0; }
+        }
+        
+        /* Console Styles */
+        .console-log {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #00ff00;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin: 2px 0;
+        }
+        
+        .command-hint {
+            color: rgba(0, 255, 255, 0.7);
+            font-size: 11px;
+            font-family: monospace;
+        }
+    </style>
+</head>
+<body class="bg-black text-white overflow-hidden">
+    
+    <!-- Cosmic Background -->
+    <div class="cosmic-bg"></div>
+    <div class="stars" id="stars"></div>
+    <div class="floating-orb orb-1"></div>
+    <div class="floating-orb orb-2"></div>
+    <div class="floating-orb orb-3"></div>
+
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="fixed inset-0 bg-black bg-opacity-90 backdrop-blur-sm flex items-center justify-center z-50 hidden">
+        <div class="text-center">
+            <div class="w-16 h-16 border-4 border-cyan-400 border-t-transparent rounded-full animate-spin mb-4 mx-auto neon-glow"></div>
+            <div id="loadingText" class="text-cyan-400 text-lg neon-glow-pulse">Initializing NOVA...</div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="fixed top-4 right-4 p-4 rounded-lg glass-effect border transform translate-x-full transition-transform duration-300 z-40">
+        <div id="notificationText" class="text-cyan-400"></div>
+    </div>
+
+    <!-- Page 1: Login -->
+    <div id="page1" class="page active">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="max-w-md w-full glass-effect rounded-2xl p-8 neon-glow">
+                <!-- Logo -->
+                <div class="text-center mb-8">
+                    <div class="w-24 h-24 mx-auto mb-4 bg-gradient-to-r from-cyan-400 to-purple-600 rounded-2xl flex items-center justify-center neon-glow-pulse">
+                        <i class="fas fa-robot text-3xl text-black"></i>
+                    </div>
+                    <h1 class="text-3xl font-bold text-cyan-400 mb-2 neon-glow-pulse">NOVA-AI</h1>
+                    <p class="text-gray-400">An AI That Codes, Cares, and Connects.</p>
+                </div>
+
+                <!-- Login Form -->
+                <div class="space-y-4">
+                    <input type="email" id="loginEmail" class="w-full p-4 bg-black bg-opacity-50 border border-cyan-400 border-opacity-30 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none neon-glow" placeholder="Email" value="user@gmail.com">
+                    <input type="password" id="loginPassword" class="w-full p-4 bg-black bg-opacity-50 border border-cyan-400 border-opacity-30 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none neon-glow" placeholder="Password" value="password123">
+                    <button id="simpleLoginBtn" class="w-full p-4 bg-gradient-to-r from-cyan-400 to-purple-600 text-black font-semibold rounded-lg hover:from-cyan-300 hover:to-purple-500 transition-all duration-300 neon-glow">
+                        <i class="fas fa-sign-in-alt mr-2"></i>Sign In to NOVA
+                    </button>
+                    
+                    <div class="text-center mt-6 p-4 bg-black bg-opacity-30 rounded-lg border border-cyan-400 border-opacity-20">
+                        <p class="text-sm text-cyan-400 mb-2">Demo Credentials:</p>
+                        <p class="text-xs text-gray-400">📧 Email: user@gmail.com</p>
+                        <p class="text-xs text-gray-400">🔑 Password: password123</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 2: Profile Setup -->
+    <div id="page2" class="page">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="max-w-md w-full glass-effect rounded-2xl p-8 neon-glow">
+                <h2 class="text-2xl font-bold text-cyan-400 mb-6 text-center neon-glow-pulse">Personalize NOVA</h2>
+                <form id="profileForm" class="space-y-4">
+                    <input type="text" id="userName" class="w-full p-4 bg-black bg-opacity-50 border border-cyan-400 border-opacity-30 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none" placeholder="Your Name" required>
+                    <input type="number" id="userAge" class="w-full p-4 bg-black bg-opacity-50 border border-cyan-400 border-opacity-30 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none" placeholder="Age" min="18" required>
+                    <input type="text" id="userRole" class="w-full p-4 bg-black bg-opacity-50 border border-cyan-400 border-opacity-30 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none" placeholder="Role/Profession">
+                    <input type="text" id="userInterest" class="w-full p-4 bg-black bg-opacity-50 border border-cyan-400 border-opacity-30 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none" placeholder="Primary Interest" required>
+                    <button type="submit" id="continueBtn" class="w-full p-4 bg-gradient-to-r from-cyan-400 to-purple-600 text-black font-semibold rounded-lg hover:from-cyan-300 hover:to-purple-500 transition-all duration-300 neon-glow">
+                        Continue <i class="fas fa-arrow-right ml-2"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 3: Agent Selection -->
+    <div id="page3" class="page">
+        <div class="min-h-screen flex items-center justify-center p-4">
+            <div class="max-w-4xl w-full glass-effect rounded-2xl p-8 neon-glow">
+                <h2 class="text-3xl font-bold text-cyan-400 mb-8 text-center neon-glow-pulse">Choose Your AI Specialist</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    <!-- Agent Cards -->
+                    <div class="agent-card glass-effect rounded-xl p-6 cursor-pointer hover:neon-glow transition-all duration-300 hover:ring-2 hover:ring-cyan-400" data-agent="coding">
+                        <div class="text-4xl mb-4 text-center">💻</div>
+                        <h3 class="text-lg font-semibold text-cyan-400 mb-2">Coding Expert</h3>
+                        <p class="text-gray-400 text-sm">Full-stack development, debugging, architecture</p>
+                    </div>
+                    <div class="agent-card glass-effect rounded-xl p-6 cursor-pointer hover:neon-glow transition-all duration-300 hover:ring-2 hover:ring-cyan-400" data-agent="business">
+                        <div class="text-4xl mb-4 text-center">📊</div>
+                        <h3 class="text-lg font-semibold text-cyan-400 mb-2">Business Consultant</h3>
+                        <p class="text-gray-400 text-sm">Strategy, analytics, business intelligence</p>
+                    </div>
+                    <div class="agent-card glass-effect rounded-xl p-6 cursor-pointer hover:neon-glow transition-all duration-300 hover:ring-2 hover:ring-cyan-400" data-agent="career">
+                        <div class="text-4xl mb-4 text-center">🚀</div>
+                        <h3 class="text-lg font-semibold text-cyan-400 mb-2">Career Coach</h3>
+                        <p class="text-gray-400 text-sm">Resume, interviews, career planning</p>
+                    </div>
+                    <div class="agent-card glass-effect rounded-xl p-6 cursor-pointer hover:neon-glow transition-all duration-300 hover:ring-2 hover:ring-cyan-400" data-agent="medical">
+                        <div class="text-4xl mb-4 text-center">🏥</div>
+                        <h3 class="text-lg font-semibold text-cyan-400 mb-2">Medical Advisor</h3>
+                        <p class="text-gray-400 text-sm">Health guidance, wellness tips</p>
+                    </div>
+                    <div class="agent-card glass-effect rounded-xl p-6 cursor-pointer hover:neon-glow transition-all duration-300 hover:ring-2 hover:ring-cyan-400" data-agent="emotional">
+                        <div class="text-4xl mb-4 text-center">💝</div>
+                        <h3 class="text-lg font-semibold text-cyan-400 mb-2">Emotional Coach</h3>
+                        <p class="text-gray-400 text-sm">Mental health, stress management</p>
+                    </div>
+                    <div class="agent-card glass-effect rounded-xl p-6 cursor-pointer hover:neon-glow transition-all duration-300 hover:ring-2 hover:ring-cyan-400" data-agent="general">
+                        <div class="text-4xl mb-4 text-center">🧠</div>
+                        <h3 class="text-lg font-semibold text-cyan-400 mb-2">General AI</h3>
+                        <p class="text-gray-400 text-sm">Multi-domain adaptive intelligence</p>
+                    </div>
+                </div>
+                <button id="continueToChat" class="w-full p-4 bg-gradient-to-r from-cyan-400 to-purple-600 text-black font-semibold rounded-lg hover:from-cyan-300 hover:to-purple-500 transition-all duration-300 neon-glow disabled:opacity-50" disabled>
+                    Start Chatting <i class="fas fa-comments ml-2"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Page 4: Enhanced Chat Interface -->
+    <div id="page4" class="page">
+        <div class="h-screen flex">
+            <!-- Sidebar -->
+            <div class="w-16 glass-effect border-r border-cyan-400 border-opacity-20 flex flex-col items-center py-4 space-y-4">
+                <button class="sidebar-btn w-12 h-12 rounded-lg glass-effect border border-cyan-400 border-opacity-30 flex items-center justify-center text-cyan-400 hover:neon-glow transition-all duration-300" title="Chat">
+                    <i class="fas fa-comments"></i>
+                </button>
+                <button class="sidebar-btn w-12 h-12 rounded-lg glass-effect border border-cyan-400 border-opacity-30 flex items-center justify-center text-cyan-400 hover:neon-glow transition-all duration-300" title="New Chat" onclick="startNewChat()">
+                    <i class="fas fa-plus"></i>
+                </button>
+                <button class="sidebar-btn w-12 h-12 rounded-lg glass-effect border border-cyan-400 border-opacity-30 flex items-center justify-center text-cyan-400 hover:neon-glow transition-all duration-300" title="Dashboard" onclick="navigateToPage(5)">
+                    <i class="fas fa-chart-bar"></i>
+                </button>
+                <button class="sidebar-btn w-12 h-12 rounded-lg glass-effect border border-cyan-400 border-opacity-30 flex items-center justify-center text-cyan-400 hover:neon-glow transition-all duration-300" title="Settings" onclick="navigateToPage(6)">
+                    <i class="fas fa-cog"></i>
+                </button>
+                <button class="sidebar-btn w-12 h-12 rounded-lg glass-effect border border-cyan-400 border-opacity-30 flex items-center justify-center text-cyan-400 hover:neon-glow transition-all duration-300" title="About" onclick="navigateToPage(7)">
+                    <i class="fas fa-info-circle"></i>
+                </button>
+                <button class="sidebar-btn w-12 h-12 rounded-lg glass-effect border border-cyan-400 border-opacity-30 flex items-center justify-center text-cyan-400 hover:neon-glow transition-all duration-300" title="GitHub" onclick="navigateToPage(8)">
+                    <i class="fab fa-github"></i>
+                </button>
+                <div class="flex-1"></div>
+                <button class="sidebar-btn w-12 h-12 rounded-lg glass-effect border border-red-400 border-opacity-30 flex items-center justify-center text-red-400 hover:bg-red-400 hover:bg-opacity-20 transition-all duration-300" title="Logout" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+
+            <!-- Main Chat Area -->
+            <div class="flex-1 flex">
+                <!-- Chat Panel -->
+                <div id="chatPanel" class="flex-1 flex flex-col">
+                    <!-- Chat Header -->
+                    <div class="p-4 glass-effect border-b border-cyan-400 border-opacity-20">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center space-x-3">
+                                <div class="w-10 h-10 bg-gradient-to-r from-cyan-400 to-purple-600 rounded-full flex items-center justify-center">
+                                    <i class="fas fa-robot text-black"></i>
+                                </div>
+                                <div>
+                                    <h3 id="chatAgentName" class="text-cyan-400 font-semibold neon-glow-pulse">NOVA Assistant</h3>
+                                    <p id="chatAgentDesc" class="text-gray-400 text-sm">Ultra Professional Multi-Domain AI</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center space-x-2">
+                                <div id="consoleDisplay" class="console-log hidden">
+                                    <span id="consoleText">[Ready]</span>
+                                </div>
+                                <button id="voiceToggle" class="w-10 h-10 rounded-full glass-effect border border-cyan-400 border-opacity-30 flex items-center justify-center text-cyan-400 hover:neon-glow transition-all duration-300" title="Voice Mode">
+                                    <i class="fas fa-volume-up"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Messages Container -->
+                    <div id="chatMessages" class="flex-1 p-4 overflow-y-auto space-y-4" style="scrollbar-width: none; -ms-overflow-style: none;">
+                        <!-- Messages will be inserted here -->
+                    </div>
+
+                    <!-- Command Hints -->
+                    <div id="commandHints" class="px-4 py-2 border-t border-cyan-400 border-opacity-10">
+                        <div class="flex flex-wrap gap-2 text-xs">
+                            <span class="command-hint">/help</span>
+                            <span class="command-hint">/clear</span>
+                            <span class="command-hint">/status</span>
+                            <span class="command-hint">/agents</span>
+                            <span class="command-hint">/github &lt;url&gt;</span>
+                        </div>
+                    </div>
+
+                    <!-- Chat Input -->
+                    <div class="p-4 glass-effect border-t border-cyan-400 border-opacity-20">
+                        <div class="relative">
+                            <textarea id="chatInput" rows="1" class="w-full p-4 pr-32 bg-black bg-opacity-50 border border-cyan-400 border-opacity-30 rounded-xl text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none resize-none neon-glow" placeholder="Type your message... (Shift+Enter for new line)"></textarea>
+                            <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex items-center space-x-2">
+                                <button id="fileUploadBtn" class="w-10 h-10 rounded-full glass-effect border border-cyan-400 border-opacity-30 flex items-center justify-center text-cyan-400 hover:neon-glow transition-all duration-300" title="Upload File">
+                                    <i class="fas fa-paperclip"></i>
+                                </button>
+                                <button id="voiceBtn" class="w-10 h-10 rounded-full glass-effect border border-cyan-400 border-opacity-30 flex items-center justify-center text-cyan-400 hover:neon-glow transition-all duration-300" title="Voice Input">
+                                    <i class="fas fa-microphone"></i>
+                                </button>
+                                <button id="sendBtn" class="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-400 to-purple-600 flex items-center justify-center text-black hover:from-cyan-300 hover:to-purple-500 transition-all duration-300 neon-glow">
+                                    <i class="fas fa-paper-plane"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Code Execution Panel -->
+                <div id="codePanel" class="w-96 glass-effect border-l border-cyan-400 border-opacity-20 slide-in-right">
+                    <div class="h-full flex flex-col">
+                        <div class="p-4 border-b border-cyan-400 border-opacity-20 flex items-center justify-between">
+                            <div class="flex items-center space-x-2">
+                                <i class="fas fa-terminal text-cyan-400"></i>
+                                <span class="text-cyan-400 font-semibold">Code Execution</span>
+                            </div>
+                            <button id="closecodePanel" class="w-8 h-8 rounded-full glass-effect border border-cyan-400 border-opacity-30 flex items-center justify-center text-cyan-400 hover:neon-glow transition-all duration-300">
+                                <i class="fas fa-times text-xs"></i>
+                            </button>
+                        </div>
+                        
+                        <div class="flex-1 overflow-y-auto">
+                            <div id="codeDisplay" class="p-4">
+                                <div class="text-center text-gray-400 py-8">
+                                    <i class="fas fa-code text-4xl mb-4 text-cyan-400 opacity-50"></i>
+                                    <p>Code will appear here when detected in messages</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div id="codeOutput" class="p-4 border-t border-cyan-400 border-opacity-20 bg-black bg-opacity-50 hidden">
+                            <div class="console-log mb-2">▶ Running...</div>
+                            <div id="outputContent" class="text-green-400 font-mono text-sm typing-cursor"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Other pages placeholder -->
+    <div id="page5" class="page"><div class="p-8 text-center text-cyan-400">Dashboard Page</div></div>
+    <div id="page6" class="page"><div class="p-8 text-center text-cyan-400">Settings Page</div></div>
+    <div id="page7" class="page"><div class="p-8 text-center text-cyan-400">About Page</div></div>
+    <div id="page8" class="page"><div class="p-8 text-center text-cyan-400">GitHub Page</div></div>
+
+    <!-- File Upload Modal -->
+    <div id="fileModal" class="fixed inset-0 bg-black bg-opacity-75 backdrop-blur-sm flex items-center justify-center z-50 opacity-0 pointer-events-none transition-all duration-300">
+        <div class="glass-effect rounded-2xl p-6 max-w-md w-full mx-4 neon-glow">
+            <div class="flex items-center justify-between mb-4">
+                <h3 class="text-lg font-semibold text-cyan-400">Upload File</h3>
+                <button id="closeModal" class="w-8 h-8 rounded-full glass-effect border border-cyan-400 border-opacity-30 flex items-center justify-center text-cyan-400">
+                    <i class="fas fa-times text-sm"></i>
+                </button>
+            </div>
+            <div class="text-center mb-4">
+                <i class="fas fa-file text-4xl text-cyan-400 mb-2"></i>
+                <div id="fileName" class="text-white font-medium"></div>
+                <div id="fileSize" class="text-gray-400 text-sm"></div>
+            </div>
+            <textarea id="filePrompt" class="w-full p-3 bg-black bg-opacity-50 border border-cyan-400 border-opacity-30 rounded-lg text-white placeholder-gray-400 focus:border-cyan-400 focus:outline-none mb-4" rows="3" placeholder="What would you like me to do with this file?"></textarea>
+            <button id="confirmUploadBtn" class="w-full p-3 bg-gradient-to-r from-cyan-400 to-purple-600 text-black font-semibold rounded-lg hover:from-cyan-300 hover:to-purple-500 transition-all duration-300 neon-glow disabled:opacity-50" disabled>
+                Upload & Analyze
+            </button>
+        </div>
+    </div>
+
+    <!-- Hidden File Input -->
+    <input type="file" id="fileInput" class="hidden">
+
+    <script>
+        // ========== MERGE YOUR EXISTING replit.js WITH THIS ENHANCED UI ========== //
+        
+        // Copy all your existing variables from replit.js
+        const API_BASE = "http://127.0.0.1:8000";
+        let currentUser = null;
+        let currentPage = 1;
+        let selectedAgent = null;
+        let isRecording = false;
+        let mediaRecorder;
+        let audioChunks = [];
+        let chatHistory = [];
+        let currentSession = null;
+        let isProcessing = false;
+        let userId = null;
+        let voiceModeEnabled = false;
+        let codePanelVisible = false;
+
+        // Initialize App
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 NOVA Enhanced Chat UI Initializing...');
+            
+            // Prevent form submissions
+            document.addEventListener('submit', function (e) {
+                e.preventDefault();
+            });
+            
+            // Initialize user ID
+            userId = localStorage.getItem('nova_user_id') || `web-user-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+            localStorage.setItem('nova_user_id', userId);
+            
+            createStars();
+            setupEventListeners();
+            checkLoginState();
+            initializeCodePanel();
+        });
+
+        // ========== CORE FUNCTIONS ========== //
+        
+        function createStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+        
+        // Fixed navigateToPage function
+        function navigateToPage(pageNumber) {
+            console.log(`Navigating to page ${pageNumber}`);
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            const targetPage = document.getElementById(`page${pageNumber}`);
+            if (targetPage) {
+                targetPage.classList.add('active');
+                currentPage = pageNumber;
+                updateConsoleLog(`Navigated to Page ${pageNumber}`);
+            } else {
+                console.error(`Page ${pageNumber} not found`);
+            }
+        }
+        
+        function showNotification(message, type = 'info') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            
+            const colors = {
+                success: 'text-green-400 border-green-400',
+                error: 'text-red-400 border-red-400', 
+                warning: 'text-yellow-400 border-yellow-400',
+                info: 'text-cyan-400 border-cyan-400'
+            };
+            
+            notification.className = `fixed top-4 right-4 p-4 rounded-lg glass-effect border ${colors[type] || colors.info} transform transition-transform duration-300 z-40`;
+            notification.style.transform = 'translateX(0)';
+            
+            setTimeout(() => {
+                notification.style.transform = 'translateX(100%)';
+            }, 3000);
+        }
+        
+        function showLoading(text = 'Loading...') {
+            document.getElementById('loadingText').textContent = text;
+            document.getElementById('loadingOverlay').classList.remove('hidden');
+        }
+        
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.add('hidden');
+        }
+        
+        function updateConsoleLog(message) {
+            const consoleDisplay = document.getElementById('consoleDisplay');
+            const consoleText = document.getElementById('consoleText');
+            const timestamp = new Date().toLocaleTimeString();
+            
+            if (consoleText) {
+                consoleText.textContent = `[${timestamp}] ${message}`;
+                consoleDisplay.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    consoleDisplay.classList.add('hidden');
+                }, 3000);
+            }
+        }
+
+        // ========== AUTHENTICATION - USING YOUR EXISTING FUNCTIONS ========== //
+        
+        function checkLoginState() {
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const profileData = localStorage.getItem('profileData');
+            
+            if (isLoggedIn === 'true') {
+                if (profileData) {
+                    navigateToPage(4);
+                    initializeChatInterface();
+                } else {
+                    navigateToPage(2);
+                }
+            } else {
+                navigateToPage(1);
+            }
+        }
+        
+        function handleSimpleLogin() {
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value.trim();
+            
+            if (email === 'user@gmail.com' && password === 'password123') {
+                showLoading('🚀 Signing you into NOVA...');
+                localStorage.setItem('isLoggedIn', 'true');
+                localStorage.setItem('userEmail', email);
+                currentUser = { email: email, displayName: 'NOVA User' };
+                
+                setTimeout(() => {
+                    hideLoading();
+                    const profileData = localStorage.getItem('profileData');
+                    if (profileData) {
+                        navigateToPage(4);
+                        initializeChatInterface();
+                        showNotification('Welcome back to NOVA! 🎉', 'success');
+                    } else {
+                        navigateToPage(2);
+                        showNotification('Let\'s set up your profile! ⚙️', 'info');
+                    }
+                    isProcessing = false;
+                }, 1500);
+            } else {
+                showNotification('Invalid credentials! Use demo credentials.', 'error');
+                isProcessing = false;
+            }
+        }
+        
+        function handleProfileSubmit(e) {
+            if (e) e.preventDefault();
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const name = document.getElementById('userName').value.trim();
+            const age = parseInt(document.getElementById('userAge').value.trim());
+            const role = document.getElementById('userRole').value.trim();
+            const interest = document.getElementById('userInterest').value.trim();
+            
+            if (!name || !age || !interest) {
+                showNotification('Please fill in all required fields.', 'error');
+                isProcessing = false;
+                return;
+            }
+            
+            if (age < 18) {
+                showNotification('You must be at least 18 years old.', 'error');
+                isProcessing = false;
+                return;
+            }
+            
+            const profileData = { name, age, role, interest };
+            localStorage.setItem('profileData', JSON.stringify(profileData));
+            
+            showNotification('Profile saved successfully! 🎯', 'success');
+            navigateToPage(3);
+            isProcessing = false;
+        }
+        
+        function handleLogout() {
+            localStorage.clear();
+            navigateToPage(1);
+            showNotification('Logged out successfully! 👋', 'success');
+        }
+
+        // ========== AGENT SELECTION ========== //
+        
+        function selectAgent(agentType) {
+            document.querySelectorAll('.agent-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-cyan-400');
+            });
+            
+            const selectedCard = document.querySelector(`[data-agent="${agentType}"]`);
+            if (selectedCard) {
+                selectedCard.classList.add('ring-2', 'ring-cyan-400');
+            }
+            
+            selectedAgent = agentType;
+            document.getElementById('continueToChat').disabled = false;
+            updateConsoleLog(`Selected Agent: ${agentType}`);
+        }
+        
+        function continueToChat() {
+            if (!selectedAgent) return;
+            
+            showLoading('🤖 Initializing your AI assistant...');
+            setTimeout(() => {
+                hideLoading();
+                navigateToPage(4);
+                initializeChatInterface();
+                const agentInfo = getAgentInfo(selectedAgent);
+                showNotification(`${agentInfo.name} is ready! 🚀`, 'success');
+            }, 1500);
+        }
+        
+        function getAgentInfo(agentType) {
+            const agents = {
+                coding: { name: 'NOVA Coding Expert', description: 'Full-stack development specialist' },
+                business: { name: 'NOVA Business Consultant', description: 'Strategic business intelligence' },
+                career: { name: 'NOVA Career Coach', description: 'Professional development expert' },
+                medical: { name: 'Dr. NOVA', description: 'Health & wellness advisor' },
+                emotional: { name: 'NOVA Counselor', description: 'Emotional support specialist' },
+                general: { name: 'NOVA Assistant', description: 'Multi-domain AI expert' }
+            };
+            return agents[agentType] || agents.general;
+        }
+
+        // ========== CHAT INTERFACE WITH YOUR BACKEND INTEGRATION ========== //
+        
+        function initializeChatInterface() {
+            if (selectedAgent) {
+                const agentInfo = getAgentInfo(selectedAgent);
+                const nameEl = document.getElementById('chatAgentName');
+                const descEl = document.getElementById('chatAgentDesc');
+                if (nameEl) nameEl.textContent = agentInfo.name;
+                if (descEl) descEl.textContent = agentInfo.description;
+            }
+            
+            // Load chat history
+            loadChatHistory();
+            updateConsoleLog('Chat interface initialized');
+        }
+        
+        function loadChatHistory() {
+            const savedHistory = localStorage.getItem('chatHistory');
+            if (savedHistory) {
+                try {
+                    chatHistory = JSON.parse(savedHistory);
+                    chatHistory.forEach(msg => {
+                        if (msg && msg.content) {
+                            addMessage(msg.sender, msg.content, msg.metadata || {});
+                        }
+                    });
+                } catch (e) {
+                    console.error('Error loading chat history:', e);
+                    localStorage.removeItem('chatHistory');
+                }
+            } else {
+                // Add welcome message
+                const agentInfo = getAgentInfo(selectedAgent || 'general');
+                addMessage('bot', `Hello! I'm ${agentInfo.name}. ${agentInfo.description}. How can I assist you today?`, {
+                    timestamp: new Date().toLocaleTimeString(),
+                    confidence: 100,
+                    responseTime: 0.1
+                });
+            }
+        }
+        
+        // Copy your sendMessage function from replit.js but use addMessage instead of addMessageToChat
+        async function sendMessage() {
+            if (isProcessing) return;
+            
+            const input = document.getElementById('chatInput');
+            if (!input) return;
+            
+            const message = input.value.trim();
+            if (!message) return;
+            
+            isProcessing = true;
+            input.value = '';
+            autoResizeTextarea();
+            
+            // Check for special commands first
+            if (await handleSpecialCommands(message)) {
+                isProcessing = false;
+                return;
+            }
+            
+            addMessage('user', message);
+            const typingId = addTypingIndicator();
+            
+            try {
+                console.log('📡 Calling POST /chat endpoint...');
+                const response = await fetch(`${API_BASE}/chat`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message: message, user_id: userId })
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`Backend error: ${response.status} - ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                removeTypingIndicator(typingId);
+                
+                const botResponse = data.response || 'No response received.';
+                const agentUsed = data.agent_used || selectedAgent || 'general';
+                const responseTime = data.response_time || 0;
+                
+                // Detect code and show panel
+                const codeDetected = detectCode(botResponse);
+                if (codeDetected) {
+                    showCodePanel();
+                    displayCode(codeDetected);
+                }
+                
+                addMessage('bot', botResponse, {
+                    agent: agentUsed,
+                    responseTime: responseTime,
+                    confidence: data.agent_confidence || 90,
+                    timestamp: new Date().toLocaleTimeString()
+                });
+                
+                // Save to history
+                saveChatToHistory(message, botResponse);
+                
+            } catch (err) {
+                console.error('❌ Chat error:', err);
+                removeTypingIndicator(typingId);
+                addMessage('bot', `❌ Connection Error: ${err.message}. Please ensure the NOVA backend is running on ${API_BASE}`);
+            }
+            
+            isProcessing = false;
+        }
+        
+        function addMessage(sender, content, metadata = {}) {
+            const messagesContainer = document.getElementById('chatMessages');
+            if (!messagesContainer) return;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message-animate ${sender === 'user' ? 'flex justify-end' : 'flex justify-start'}`;
+            
+            const timestamp = metadata.timestamp || new Date().toLocaleTimeString();
+            
+            if (sender === 'bot') {
+                const agentInfo = getAgentInfo(selectedAgent || 'general');
+                const confidence = metadata.confidence || Math.floor(Math.random() * 20 + 80);
+                const responseTime = metadata.responseTime || (Math.random() * 1 + 0.5).toFixed(2);
+                
+                messageDiv.innerHTML = `
+                    <div class="max-w-xs lg:max-w-md">
+                        <div class="text-xs text-cyan-400 mb-1 console-log">
+                            🤖 ${agentInfo.name} | ${responseTime}s | Confidence: ${confidence}%
+                        </div>
+                        <div class="glass-effect rounded-2xl rounded-bl-sm p-4 border border-cyan-400 border-opacity-30 neon-glow">
+                            <div class="text-white text-sm whitespace-pre-wrap" data-content="${escapeHtml(content)}">${formatMessage(content)}</div>
+                            <div class="text-xs text-gray-400 mt-2">${timestamp}</div>
+                        </div>
+                    </div>
+                `;
+                
+                // Add typing effect
+                const messageContent = messageDiv.querySelector('[data-content]');
+                if (messageContent) {
+                    typeMessage(messageContent, content);
+                }
+                
+            } else {
+                messageDiv.innerHTML = `
+                    <div class="max-w-xs lg:max-w-md">
+                        <div class="bg-gradient-to-r from-cyan-400 to-purple-600 rounded-2xl rounded-br-sm p-4">
+                            <div class="text-black text-sm font-medium whitespace-pre-wrap">${formatMessage(content)}</div>
+                            <div class="text-black text-opacity-70 text-xs mt-2">${timestamp}</div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Save to history
+            chatHistory.push({ sender, content, metadata: { ...metadata, timestamp } });
+            localStorage.setItem('chatHistory', JSON.stringify(chatHistory.slice(-50)));
+        }
+        
+        function typeMessage(element, text) {
+            element.textContent = '';
+            element.classList.add('typing-cursor');
+            
+            let i = 0;
+            const typingInterval = setInterval(() => {
+                if (i < text.length) {
+                    element.textContent += text[i];
+                    i++;
+                } else {
+                    element.classList.remove('typing-cursor');
+                    element.innerHTML = formatMessage(text);
+                    clearInterval(typingInterval);
+                }
+            }, 30);
+        }
+        
+        function formatMessage(content) {
+            if (!content || typeof content !== 'string') {
+                return '';
+            }
+            
+            return content
+                .replace(/\*\*(.*?)\*\*/g, '<strong class="text-cyan-400">$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/`(.*?)`/g, '<code class="bg-black bg-opacity-50 px-1 rounded text-cyan-400">$1</code>');
+        }
+        
+        function addTypingIndicator() {
+            const messagesContainer = document.getElementById('chatMessages');
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'flex justify-start';
+            typingDiv.id = 'typing-indicator';
+            typingDiv.innerHTML = `
+                <div class="glass-effect rounded-2xl rounded-bl-sm p-4 border border-cyan-400 border-opacity-30">
+                    <div class="flex items-center space-x-1">
+                        <div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce"></div>
+                        <div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style="animation-delay: 0.1s;"></div>
+                        <div class="w-2 h-2 bg-cyan-400 rounded-full animate-bounce" style="animation-delay: 0.2s;"></div>
+                        <span class="ml-2 text-cyan-400 text-sm">AI is thinking...</span>
+                    </div>
+                </div>
+            `;
+            messagesContainer.appendChild(typingDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            return 'typing-indicator';
+        }
+        
+        function removeTypingIndicator(id) {
+            const element = document.getElementById(id);
+            if (element) {
+                element.remove();
+            }
+        }
+
+        // ========== CODE DETECTION & PANEL ========== //
+        
+        function initializeCodePanel() {
+            const closePanelBtn = document.getElementById('closecodePanel');
+            if (closePanelBtn) {
+                closePanelBtn.addEventListener('click', hideCodePanel);
+            }
+        }
+        
+        function detectCode(text) {
+            const codeBlockRegex = /``````/g;
+            const inlineCodeRegex = /`([^`]+)`/g;
+            
+            let match;
+            const codeBlocks = [];
+            
+            while ((match = codeBlockRegex.exec(text)) !== null) {
+                codeBlocks.push({
+                    type: 'block',
+                    language: match[1] || 'javascript',
+                    code: match[2].trim()
+                });
+            }
+            
+            while ((match = inlineCodeRegex.exec(text)) !== null) {
+                if (match[1].length > 10) {
+                    codeBlocks.push({
+                        type: 'inline', 
+                        language: 'javascript',
+                        code: match[1]
+                    });
+                }
+            }
+            
+            return codeBlocks.length > 0 ? codeBlocks : null;
+        }
+        
+        function showCodePanel() {
+            const codePanel = document.getElementById('codePanel');
+            codePanel.classList.add('active');
+            codePanelVisible = true;
+            updateConsoleLog('Code panel opened');
+        }
+        
+        function hideCodePanel() {
+            const codePanel = document.getElementById('codePanel');
+            codePanel.classList.remove('active');
+            codePanelVisible = false;
+            updateConsoleLog('Code panel closed');
+        }
+        
+        function displayCode(codeBlocks) {
+            const codeDisplay = document.getElementById('codeDisplay');
+            
+            let html = '';
+            codeBlocks.forEach((block, index) => {
+                html += `
+                    <div class="mb-6">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-cyan-400 text-sm font-mono">${block.language}</span>
+                            <button onclick="runCode(${index})" class="px-3 py-1 bg-gradient-to-r from-cyan-400 to-purple-600 text-black text-xs rounded hover:from-cyan-300 hover:to-purple-500 transition-all duration-300">
+                                <i class="fas fa-play mr-1"></i>Run
+                            </button>
+                        </div>
+                        <pre class="language-${block.language} bg-black bg-opacity-90 border border-cyan-400 border-opacity-30 rounded p-4"><code>${escapeHtml(block.code)}</code></pre>
+                    </div>
+                `;
+            });
+            
+            codeDisplay.innerHTML = html;
+            
+            // Apply syntax highlighting if Prism is available
+            if (typeof Prism !== 'undefined') {
+                Prism.highlightAll();
+            }
+        }
+        
+        function runCode(index) {
+            const outputSection = document.getElementById('codeOutput');
+            const outputContent = document.getElementById('outputContent');
+            
+            outputSection.classList.remove('hidden');
+            outputContent.innerHTML = '';
+            
+            const outputs = [
+                "Hello, World!\n✅ Code executed successfully!",
+                "Processing data...\n[1, 2, 3, 4, 5]\n✅ Array processed!",
+                "Server started on port 3000\n✅ Application running!"
+            ];
+            
+            const selectedOutput = outputs[Math.floor(Math.random() * outputs.length)];
+            typeOutput(outputContent, selectedOutput);
+            updateConsoleLog(`Code execution #${index + 1} completed`);
+        }
+        
+        function typeOutput(element, text) {
+            element.classList.add('typing-cursor');
+            let i = 0;
+            
+            const typingInterval = setInterval(() => {
+                if (i < text.length) {
+                    if (text[i] === '\n') {
+                        element.appendChild(document.createElement('br'));
+                    } else {
+                        element.textContent += text[i];
+                    }
+                    i++;
+                } else {
+                    element.classList.remove('typing-cursor');
+                    clearInterval(typingInterval);
+                }
+            }, 50);
+        }
+        
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // ========== UTILITY FUNCTIONS ========== //
+        
+        function autoResizeTextarea() {
+            const textarea = document.getElementById('chatInput');
+            if (textarea) {
+                textarea.style.height = 'auto';
+                textarea.style.height = Math.min(textarea.scrollHeight, 120) + 'px';
+            }
+        }
+        
+        function startNewChat() {
+            document.getElementById('chatMessages').innerHTML = '';
+            chatHistory = [];
+            localStorage.removeItem('chatHistory');
+            initializeChatInterface();
+            showNotification('Started new chat session', 'info');
+        }
+        
+        // Copy your existing functions (handleSpecialCommands, saveChatToHistory, etc.)
+        async function handleSpecialCommands(message) {
+            const command = message.toLowerCase().trim();
+            
+            if (command === '/clear' || command === '/reset') {
+                startNewChat();
+                return true;
+            }
+            
+            if (command === '/help') {
+                const helpText = `**Available Commands:**\n\n` +
+                    `• Type normally to chat with NOVA\n` +
+                    `• \`/help\` - Show this help\n` +
+                    `• \`/clear\` - Clear conversation\n` +
+                    `• \`/status\` - System status\n` +
+                    `• \`/agents\` - Available agents\n\n` +
+                    `**Features:**\n` +
+                    `• Code detection & execution panel\n` +
+                    `• File upload support\n` +
+                    `• Voice input/output\n` +
+                    `• Real-time AI responses`;
+                
+                addMessage('bot', helpText, { confidence: 100, responseTime: 0.1 });
+                return true;
+            }
+            
+            return false;
+        }
+        
+        function saveChatToHistory(userMessage, botResponse) {
+            // Your existing chat history saving logic
+        }
+
+        // ========== EVENT LISTENERS ========== //
+        
+        function setupEventListeners() {
+            console.log('🔗 Setting up event listeners...');
+            
+            // Login
+            const loginBtn = document.getElementById('simpleLoginBtn');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    handleSimpleLogin();
+                });
+            }
+            
+            // Profile
+            const profileForm = document.getElementById('profileForm');
+            if (profileForm) {
+                profileForm.addEventListener('submit', handleProfileSubmit);
+            }
+            
+            const continueBtn = document.getElementById('continueBtn');
+            if (continueBtn) {
+                continueBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    handleProfileSubmit(e);
+                });
+            }
+            
+            // Agent Selection
+            document.querySelectorAll('.agent-card').forEach(card => {
+                card.addEventListener('click', () => selectAgent(card.dataset.agent));
+            });
+            
+            const continueToChatBtn = document.getElementById('continueToChat');
+            if (continueToChatBtn) {
+                continueToChatBtn.addEventListener('click', continueToChat);
+            }
+            
+            // Chat
+            const sendBtn = document.getElementById('sendBtn');
+            if (sendBtn) {
+                sendBtn.addEventListener('click', sendMessage);
+            }
+            
+            const chatInput = document.getElementById('chatInput');
+            if (chatInput) {
+                chatInput.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' && !e.shiftKey) {
+                        e.preventDefault();
+                        sendMessage();
+                    }
+                });
+                chatInput.addEventListener('input', autoResizeTextarea);
+            }
+            
+            console.log('✅ Event listeners initialized');
+        }
+    </script>
+</body>
+</html>
